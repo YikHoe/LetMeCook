@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "861560885487",
+    "project_id": "letmecook-864e0",
+    "storage_bucket": "letmecook-864e0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:861560885487:android:ecd7b29b31d7cb13a64b1a",
+        "android_client_info": {
+          "package_name": "com.example.letmecook"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRUh-jzSCD3wyLIN5_n2m4f76wqiey2NM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
