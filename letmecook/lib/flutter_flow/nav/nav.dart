@@ -52,6 +52,14 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: 'login_page',
           path: '/loginPage',
           builder: (context, params) => LoginPageWidget(),
+<<<<<<< Updated upstream
+=======
+        ),
+        FFRoute(
+          name: 'normal_user_home_page',
+          path: '/normalUserHomePage',
+          builder: (context, params) => NormalUserHomePageWidget(),
+>>>>>>> Stashed changes
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );

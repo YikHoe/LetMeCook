@@ -7,9 +7,20 @@ allprojects {
 
 rootProject.buildDir = '../build'
 subprojects {
-    project.buildDir = "${rootProject.buildDir}/${project.name}"
+    afterEvaluate { project ->
+        if (project.plugins.hasPlugin("com.android.application") ||
+                project.plugins.hasPlugin("com.android.library")) {
+            project.android {
+                compileSdkVersion 34
+            }
+        }
+    }
 }
 subprojects {
+<<<<<<< Updated upstream
+=======
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+>>>>>>> Stashed changes
     project.evaluationDependsOn(':app')
 }
 
