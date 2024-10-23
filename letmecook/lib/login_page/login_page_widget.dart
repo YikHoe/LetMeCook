@@ -4,10 +4,7 @@ import '/flutter_flow/flutter_flow_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
 import 'login_page_model.dart';
 export 'login_page_model.dart';
 
@@ -48,50 +45,30 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: scaffoldKey,
-<<<<<<< Updated upstream
-        backgroundColor: Color(0xFFE0E3E7),
-=======
         backgroundColor: Color(0xFFF1F4F8),
->>>>>>> Stashed changes
         appBar: AppBar(
           backgroundColor: Color(0xFFE59368),
           automaticallyImplyLeading: false,
           title: Align(
-<<<<<<< Updated upstream
             alignment: AlignmentDirectional(0, 0),
-=======
-            alignment: AlignmentDirectional(0.0, 0.0),
->>>>>>> Stashed changes
             child: Text(
               'LetMeCook',
               style: FlutterFlowTheme.of(context).headlineMedium.override(
                     fontFamily: 'Inter Tight',
                     color: Colors.white,
-<<<<<<< Updated upstream
                     fontSize: 22,
-=======
-                    fontSize: 22.0,
->>>>>>> Stashed changes
                     letterSpacing: 0.0,
                   ),
             ),
           ),
           actions: [],
           centerTitle: false,
-<<<<<<< Updated upstream
           elevation: 2,
-=======
-          elevation: 2.0,
->>>>>>> Stashed changes
         ),
         body: SafeArea(
           top: true,
           child: Padding(
-<<<<<<< Updated upstream
             padding: EdgeInsetsDirectional.fromSTEB(24, 24, 24, 24),
-=======
-            padding: EdgeInsetsDirectional.fromSTEB(24.0, 24.0, 24.0, 24.0),
->>>>>>> Stashed changes
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -109,32 +86,18 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                   ),
                   Material(
                     color: Colors.transparent,
-<<<<<<< Updated upstream
                     elevation: 2,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
-=======
-                    elevation: 2.0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.0),
->>>>>>> Stashed changes
                     ),
                     child: Container(
                       width: MediaQuery.sizeOf(context).width * 0.9,
                       decoration: BoxDecoration(
                         color: Colors.white,
-<<<<<<< Updated upstream
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Padding(
                         padding: EdgeInsetsDirectional.fromSTEB(24, 24, 24, 24),
-=======
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      child: Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(
-                            24.0, 24.0, 24.0, 24.0),
->>>>>>> Stashed changes
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -156,10 +119,6 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                                     .bodyMedium
                                     .override(
                                       fontFamily: 'Inter',
-<<<<<<< Updated upstream
-                                      color: Colors.black,
-=======
->>>>>>> Stashed changes
                                       letterSpacing: 0.0,
                                     ),
                                 enabledBorder: OutlineInputBorder(
@@ -167,44 +126,28 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                                     color: Color(0xFFE0E3E7),
                                     width: 1.0,
                                   ),
-<<<<<<< Updated upstream
                                   borderRadius: BorderRadius.circular(8),
-=======
-                                  borderRadius: BorderRadius.circular(8.0),
->>>>>>> Stashed changes
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
                                     color: Color(0x00000000),
                                     width: 1.0,
                                   ),
-<<<<<<< Updated upstream
                                   borderRadius: BorderRadius.circular(8),
-=======
-                                  borderRadius: BorderRadius.circular(8.0),
->>>>>>> Stashed changes
                                 ),
                                 errorBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
                                     color: Color(0x00000000),
                                     width: 1.0,
                                   ),
-<<<<<<< Updated upstream
                                   borderRadius: BorderRadius.circular(8),
-=======
-                                  borderRadius: BorderRadius.circular(8.0),
->>>>>>> Stashed changes
                                 ),
                                 focusedErrorBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
                                     color: Color(0x00000000),
                                     width: 1.0,
                                   ),
-<<<<<<< Updated upstream
                                   borderRadius: BorderRadius.circular(8),
-=======
-                                  borderRadius: BorderRadius.circular(8.0),
->>>>>>> Stashed changes
                                 ),
                                 filled: true,
                                 fillColor: Color(0xFFF1F4F8),
@@ -213,10 +156,6 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                                   .bodyLarge
                                   .override(
                                     fontFamily: 'Inter',
-<<<<<<< Updated upstream
-                                    color: Colors.black,
-=======
->>>>>>> Stashed changes
                                     letterSpacing: 0.0,
                                   ),
                               minLines: 1,
@@ -242,10 +181,6 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                                     .bodyMedium
                                     .override(
                                       fontFamily: 'Inter',
-<<<<<<< Updated upstream
-                                      color: Colors.black,
-=======
->>>>>>> Stashed changes
                                       letterSpacing: 0.0,
                                     ),
                                 enabledBorder: OutlineInputBorder(
@@ -253,44 +188,28 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                                     color: Color(0xFFE0E3E7),
                                     width: 1.0,
                                   ),
-<<<<<<< Updated upstream
                                   borderRadius: BorderRadius.circular(8),
-=======
-                                  borderRadius: BorderRadius.circular(8.0),
->>>>>>> Stashed changes
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
                                     color: Color(0x00000000),
                                     width: 1.0,
                                   ),
-<<<<<<< Updated upstream
                                   borderRadius: BorderRadius.circular(8),
-=======
-                                  borderRadius: BorderRadius.circular(8.0),
->>>>>>> Stashed changes
                                 ),
                                 errorBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
                                     color: Color(0x00000000),
                                     width: 1.0,
                                   ),
-<<<<<<< Updated upstream
                                   borderRadius: BorderRadius.circular(8),
-=======
-                                  borderRadius: BorderRadius.circular(8.0),
->>>>>>> Stashed changes
                                 ),
                                 focusedErrorBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
                                     color: Color(0x00000000),
                                     width: 1.0,
                                   ),
-<<<<<<< Updated upstream
                                   borderRadius: BorderRadius.circular(8),
-=======
-                                  borderRadius: BorderRadius.circular(8.0),
->>>>>>> Stashed changes
                                 ),
                                 filled: true,
                                 fillColor: Color(0xFFF1F4F8),
@@ -306,11 +225,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                                         : Icons.visibility_off_outlined,
                                     color: FlutterFlowTheme.of(context)
                                         .secondaryText,
-<<<<<<< Updated upstream
                                     size: 22,
-=======
-                                    size: 22.0,
->>>>>>> Stashed changes
                                   ),
                                 ),
                               ),
@@ -325,38 +240,21 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                               validator: _model.textController2Validator
                                   .asValidator(context),
                             ),
-<<<<<<< Updated upstream
                           ].divide(SizedBox(height: 16)),
-=======
-                          ].divide(SizedBox(height: 16.0)),
->>>>>>> Stashed changes
                         ),
                       ),
                     ),
                   ),
                   FFButtonWidget(
-<<<<<<< Updated upstream
-                    onPressed: () {
-                      print('Button pressed ...');
-=======
                     onPressed: () async {
                       context.pushNamed('normal_user_home_page');
->>>>>>> Stashed changes
                     },
                     text: 'Login',
                     options: FFButtonOptions(
                       width: MediaQuery.sizeOf(context).width * 0.9,
-<<<<<<< Updated upstream
                       height: 50,
                       padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                       iconPadding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-=======
-                      height: 50.0,
-                      padding:
-                          EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                      iconPadding:
-                          EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
->>>>>>> Stashed changes
                       color: Color(0xFFE59368),
                       textStyle:
                           FlutterFlowTheme.of(context).titleSmall.override(
@@ -364,13 +262,8 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                                 color: Colors.white,
                                 letterSpacing: 0.0,
                               ),
-<<<<<<< Updated upstream
                       elevation: 2,
                       borderRadius: BorderRadius.circular(25),
-=======
-                      elevation: 2.0,
-                      borderRadius: BorderRadius.circular(25.0),
->>>>>>> Stashed changes
                     ),
                   ),
                   Text(
@@ -388,17 +281,9 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                     text: 'Sign in with Google',
                     options: FFButtonOptions(
                       width: MediaQuery.sizeOf(context).width * 0.9,
-<<<<<<< Updated upstream
                       height: 50,
                       padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                       iconPadding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-=======
-                      height: 50.0,
-                      padding:
-                          EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                      iconPadding:
-                          EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
->>>>>>> Stashed changes
                       color: Colors.white,
                       textStyle:
                           FlutterFlowTheme.of(context).titleSmall.override(
@@ -406,21 +291,12 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                                 color: Colors.black,
                                 letterSpacing: 0.0,
                               ),
-<<<<<<< Updated upstream
                       elevation: 0,
                       borderSide: BorderSide(
                         color: Color(0xFFE0E3E7),
                         width: 1,
                       ),
                       borderRadius: BorderRadius.circular(25),
-=======
-                      elevation: 0.0,
-                      borderSide: BorderSide(
-                        color: Color(0xFFE0E3E7),
-                        width: 1.0,
-                      ),
-                      borderRadius: BorderRadius.circular(25.0),
->>>>>>> Stashed changes
                     ),
                   ),
                   Row(
@@ -454,15 +330,9 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                                   ),
                         ),
                       ),
-<<<<<<< Updated upstream
                     ].divide(SizedBox(width: 4)),
                   ),
                 ].divide(SizedBox(height: 24)),
-=======
-                    ].divide(SizedBox(width: 4.0)),
-                  ),
-                ].divide(SizedBox(height: 24.0)),
->>>>>>> Stashed changes
               ),
             ),
           ),
@@ -470,8 +340,4 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
       ),
     );
   }
-<<<<<<< Updated upstream
 }
-=======
-}
->>>>>>> Stashed changes
