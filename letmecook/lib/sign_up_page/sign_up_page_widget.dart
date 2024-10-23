@@ -51,11 +51,7 @@ class _SignUpPageWidgetState extends State<SignUpPageWidget> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: scaffoldKey,
-<<<<<<< Updated upstream
-        backgroundColor: Color(0xFFE0E3E7),
-=======
         backgroundColor: Color(0xFFF1F4F8),
->>>>>>> Stashed changes
         appBar: AppBar(
           backgroundColor: Color(0xFFE59368),
           automaticallyImplyLeading: false,
@@ -141,10 +137,7 @@ class _SignUpPageWidgetState extends State<SignUpPageWidget> {
                                     .bodyMedium
                                     .override(
                                       fontFamily: 'Inter',
-<<<<<<< Updated upstream
                                       color: Colors.black,
-=======
->>>>>>> Stashed changes
                                       letterSpacing: 0.0,
                                     ),
                                 enabledBorder: OutlineInputBorder(
@@ -207,10 +200,7 @@ class _SignUpPageWidgetState extends State<SignUpPageWidget> {
                                     .bodyMedium
                                     .override(
                                       fontFamily: 'Inter',
-<<<<<<< Updated upstream
                                       color: Colors.black,
-=======
->>>>>>> Stashed changes
                                       letterSpacing: 0.0,
                                     ),
                                 enabledBorder: OutlineInputBorder(
@@ -274,10 +264,7 @@ class _SignUpPageWidgetState extends State<SignUpPageWidget> {
                                     .bodyMedium
                                     .override(
                                       fontFamily: 'Inter',
-<<<<<<< Updated upstream
                                       color: Colors.black,
-=======
->>>>>>> Stashed changes
                                       letterSpacing: 0.0,
                                     ),
                                 enabledBorder: OutlineInputBorder(
@@ -355,10 +342,7 @@ class _SignUpPageWidgetState extends State<SignUpPageWidget> {
                                     .bodyMedium
                                     .override(
                                       fontFamily: 'Inter',
-<<<<<<< Updated upstream
                                       color: Colors.black,
-=======
->>>>>>> Stashed changes
                                       letterSpacing: 0.0,
                                     ),
                                 enabledBorder: OutlineInputBorder(
