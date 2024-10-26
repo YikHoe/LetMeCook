@@ -4,7 +4,8 @@ import '/flutter_flow/flutter_flow_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'login_page_model.dart';
 export 'login_page_model.dart';
 
@@ -19,6 +20,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
   late LoginPageModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -35,8 +37,85 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
   @override
   void dispose() {
     _model.dispose();
-
     super.dispose();
+  }
+
+  Future<void> _login() async {
+    final email = _model.textController1?.text.trim() ?? '';
+    final password = _model.textController2?.text.trim() ?? '';
+
+    // Basic validation
+    if (email.isEmpty || !email.contains('@')) {
+      _showSnackBar('Please enter a valid email address.');
+      return;
+    }
+    if (password.isEmpty || password.length < 6) {
+      _showSnackBar('Password must be at least 6 characters.');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      // Firebase Email & Password Sign-in
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // Redirect to home page on successful login
+      context.pushNamed('normal_user_home_page');
+    } on FirebaseAuthException catch (e) {
+      //String message = 'An error occurred, please try again.';
+      // Debugging: Print error code to console
+      print("FirebaseAuthException code: ${e.code}");
+
+      if (e.code == 'invalid-credential') {
+        String message = 'Incorrect email or password, please try again.';
+        _showSnackBar(message);
+      }
+    } catch (e) {
+      // Catch any other exceptions that are not FirebaseAuthExceptions
+      _showSnackBar('An unexpected error occurred, please try again.');
+      print("Exception: ${e.toString()}");
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _loginWithGoogle() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) {
+        _showSnackBar('Google sign-in cancelled.');
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      await FirebaseAuth.instance.signInWithCredential(credential);
+      context.pushNamed('normal_user_home_page');
+    } catch (e) {
+      print(e);
+      _showSnackBar('Google sign-in failed. Please try again.');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  // Helper function to show snackbar messages
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   @override
@@ -50,25 +129,23 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
           backgroundColor: Color(0xFFE59368),
           automaticallyImplyLeading: false,
           title: Align(
-            alignment: AlignmentDirectional(0, 0),
+            alignment: AlignmentDirectional(0.0, 0.0),
             child: Text(
               'LetMeCook',
               style: FlutterFlowTheme.of(context).headlineMedium.override(
                     fontFamily: 'Inter Tight',
                     color: Colors.white,
-                    fontSize: 22,
-                    letterSpacing: 0.0,
+                    fontSize: 22.0,
                   ),
             ),
           ),
-          actions: [],
           centerTitle: false,
-          elevation: 2,
+          elevation: 2.0,
         ),
         body: SafeArea(
           top: true,
           child: Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(24, 24, 24, 24),
+            padding: EdgeInsetsDirectional.fromSTEB(24.0, 24.0, 24.0, 24.0),
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -80,24 +157,24 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                     style: FlutterFlowTheme.of(context).headlineSmall.override(
                           fontFamily: 'Inter Tight',
                           color: Colors.black,
-                          letterSpacing: 0.0,
                           fontWeight: FontWeight.w600,
                         ),
                   ),
                   Material(
                     color: Colors.transparent,
-                    elevation: 2,
+                    elevation: 2.0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12.0),
                     ),
                     child: Container(
                       width: MediaQuery.sizeOf(context).width * 0.9,
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12.0),
                       ),
                       child: Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(24, 24, 24, 24),
+                        padding: EdgeInsetsDirectional.fromSTEB(
+                            24.0, 24.0, 24.0, 24.0),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -240,67 +317,57 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                               validator: _model.textController2Validator
                                   .asValidator(context),
                             ),
-                          ].divide(SizedBox(height: 16)),
+                          ].divide(SizedBox(height: 16.0)),
                         ),
                       ),
                     ),
                   ),
-                  FFButtonWidget(
-                    onPressed: () async {
-                      context.pushNamed('normal_user_home_page');
-                    },
-                    text: 'Login',
-                    options: FFButtonOptions(
-                      width: MediaQuery.sizeOf(context).width * 0.9,
-                      height: 50,
-                      padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                      iconPadding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                      color: Color(0xFFE59368),
-                      textStyle:
-                          FlutterFlowTheme.of(context).titleSmall.override(
-                                fontFamily: 'Inter Tight',
-                                color: Colors.white,
-                                letterSpacing: 0.0,
-                              ),
-                      elevation: 2,
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                  ),
-                  Text(
-                    'OR',
-                    style: FlutterFlowTheme.of(context).bodyMedium.override(
-                          fontFamily: 'Inter',
-                          color: FlutterFlowTheme.of(context).secondaryText,
-                          letterSpacing: 0.0,
+                  _isLoading
+                      ? CircularProgressIndicator()
+                      : FFButtonWidget(
+                          onPressed: _login,
+                          text: 'Login',
+                          options: FFButtonOptions(
+                            width: MediaQuery.sizeOf(context).width * 0.9,
+                            height: 50.0,
+                            color: Color(0xFFE59368),
+                            textStyle: FlutterFlowTheme.of(context)
+                                .titleSmall
+                                .override(
+                                  fontFamily: 'Inter Tight',
+                                  color: Colors.white,
+                                ),
+                            elevation: 2.0,
+                            borderRadius: BorderRadius.circular(25.0),
+                          ),
                         ),
-                  ),
-                  FFButtonWidget(
-                    onPressed: () {
-                      print('Button pressed ...');
-                    },
-                    text: 'Sign in with Google',
-                    options: FFButtonOptions(
-                      width: MediaQuery.sizeOf(context).width * 0.9,
-                      height: 50,
-                      padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                      iconPadding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                      color: Colors.white,
-                      textStyle:
-                          FlutterFlowTheme.of(context).titleSmall.override(
-                                fontFamily: 'Inter Tight',
-                                color: Colors.black,
-                                letterSpacing: 0.0,
-                              ),
-                      elevation: 0,
-                      borderSide: BorderSide(
-                        color: Color(0xFFE0E3E7),
-                        width: 1,
-                      ),
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                  ),
+                  // Text(
+                  //   'OR',
+                  //   style: FlutterFlowTheme.of(context).bodyMedium.override(
+                  //         fontFamily: 'Inter',
+                  //         color: FlutterFlowTheme.of(context).secondaryText,
+                  //       ),
+                  // ),
+                  // FFButtonWidget(
+                  //   onPressed: _loginWithGoogle,
+                  //   text: 'Sign in with Google',
+                  //   options: FFButtonOptions(
+                  //     width: MediaQuery.sizeOf(context).width * 0.9,
+                  //     height: 50.0,
+                  //     color: Colors.white,
+                  //     textStyle:
+                  //         FlutterFlowTheme.of(context).titleSmall.override(
+                  //               fontFamily: 'Inter Tight',
+                  //               color: Colors.black,
+                  //             ),
+                  //     borderSide: BorderSide(
+                  //       color: Color(0xFFE0E3E7),
+                  //       width: 1.0,
+                  //     ),
+                  //     borderRadius: BorderRadius.circular(25.0),
+                  //   ),
+                  // ),
                   Row(
-                    mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
@@ -308,31 +375,23 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                         style: FlutterFlowTheme.of(context).bodyMedium.override(
                               fontFamily: 'Inter',
                               color: FlutterFlowTheme.of(context).secondaryText,
-                              letterSpacing: 0.0,
                             ),
                       ),
                       InkWell(
-                        splashColor: Colors.transparent,
-                        focusColor: Colors.transparent,
-                        hoverColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                        onTap: () async {
-                          context.pushNamed('sign_up_page');
-                        },
+                        onTap: () => context.pushNamed('sign_up_page'),
                         child: Text(
                           'Sign Up',
                           style:
                               FlutterFlowTheme.of(context).bodyMedium.override(
                                     fontFamily: 'Inter',
                                     color: Color(0xFFE59368),
-                                    letterSpacing: 0.0,
                                     fontWeight: FontWeight.w600,
                                   ),
                         ),
                       ),
-                    ].divide(SizedBox(width: 4)),
+                    ].divide(SizedBox(width: 4.0)),
                   ),
-                ].divide(SizedBox(height: 24)),
+                ].divide(SizedBox(height: 24.0)),
               ),
             ),
           ),

@@ -12,7 +12,20 @@
           "package_name": "com.example.letmecook"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "861560885487-3ug00uje71nv1he21sbgbiojrkugsf75.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.letmecook",
+            "certificate_hash": "9bbb3186b2189ef16d8f272bdab59362c395cbb4"
+          }
+        },
+        {
+          "client_id": "861560885487-3vs4100oas7hdmlji2dglur05pfkspe3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBRUh-jzSCD3wyLIN5_n2m4f76wqiey2NM"
@@ -20,7 +33,63 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "861560885487-3vs4100oas7hdmlji2dglur05pfkspe3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "861560885487-41d32hj83vbva5ieernubis9bb4ojmfq.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mycompany.letmecook"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:861560885487:android:76748564463a7f45a64b1a",
+        "android_client_info": {
+          "package_name": "com.mycompany.letmecook"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "861560885487-19fgkvto8hbp0h5ofm67inucbbqv92ke.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mycompany.letmecook",
+            "certificate_hash": "9bbb3186b2189ef16d8f272bdab59362c395cbb4"
+          }
+        },
+        {
+          "client_id": "861560885487-3vs4100oas7hdmlji2dglur05pfkspe3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRUh-jzSCD3wyLIN5_n2m4f76wqiey2NM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "861560885487-3vs4100oas7hdmlji2dglur05pfkspe3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "861560885487-41d32hj83vbva5ieernubis9bb4ojmfq.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mycompany.letmecook"
+              }
+            }
+          ]
         }
       }
     }

@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -19,6 +21,7 @@ class _SignUpPageWidgetState extends State<SignUpPageWidget> {
   late SignUpPageModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -41,8 +44,72 @@ class _SignUpPageWidgetState extends State<SignUpPageWidget> {
   @override
   void dispose() {
     _model.dispose();
-
     super.dispose();
+  }
+
+  Future<void> _signUp() async {
+    final username = _model.textController1?.text.trim() ?? '';
+    final email = _model.textController2?.text.trim() ?? '';
+    final password = _model.textController3?.text.trim() ?? '';
+    final confirmPassword = _model.textController4?.text.trim() ?? '';
+
+    // Basic input validation
+    if (username.isEmpty) {
+      _showSnackBar('Please enter a username.');
+      return;
+    }
+    if (email.isEmpty || !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
+      _showSnackBar('Please enter a valid email address.');
+      return;
+    }
+    if (password.isEmpty || password.length < 6) {
+      _showSnackBar('Password must be at least 6 characters.');
+      return;
+    }
+    if (password != confirmPassword) {
+      _showSnackBar('Passwords do not match.');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      // Create user with Firebase Auth
+      final UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+
+      // Save user info to Firestore
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .set({
+        'email': email,
+        'username': username,
+        'user_role': "normal_user",
+      });
+
+      _showSnackBar('Account created successfully!');
+
+      // Navigate to the home page after success
+      context.pushNamed('login_page');
+    } on FirebaseAuthException catch (e) {
+      String message = 'An error occurred, please try again.';
+      if (e.code == 'email-already-in-use') {
+        message = 'The email is already in use by another account.';
+      } else if (e.code == 'weak-password') {
+        message = 'The password provided is too weak.';
+      }
+      _showSnackBar(message);
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+// Helper function to show snackbar messages
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   @override
@@ -78,7 +145,6 @@ class _SignUpPageWidgetState extends State<SignUpPageWidget> {
                   letterSpacing: 0.0,
                 ),
           ),
-          actions: [],
           centerTitle: true,
           elevation: 2.0,
         ),
@@ -407,29 +473,25 @@ class _SignUpPageWidgetState extends State<SignUpPageWidget> {
                       ),
                     ),
                   ),
-                  FFButtonWidget(
-                    onPressed: () {
-                      print('Button pressed ...');
-                    },
-                    text: 'Sign Up',
-                    options: FFButtonOptions(
-                      width: MediaQuery.sizeOf(context).width * 0.9,
-                      height: 50.0,
-                      padding:
-                          EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                      iconPadding:
-                          EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                      color: Color(0xFFE59368),
-                      textStyle:
-                          FlutterFlowTheme.of(context).titleSmall.override(
-                                fontFamily: 'Inter Tight',
-                                color: Colors.white,
-                                letterSpacing: 0.0,
-                              ),
-                      elevation: 2.0,
-                      borderRadius: BorderRadius.circular(25.0),
-                    ),
-                  ),
+                  _isLoading
+                      ? CircularProgressIndicator()
+                      : FFButtonWidget(
+                          onPressed: _signUp,
+                          text: 'Sign Up',
+                          options: FFButtonOptions(
+                            width: MediaQuery.sizeOf(context).width * 0.9,
+                            height: 50.0,
+                            color: Color(0xFFE59368),
+                            textStyle: FlutterFlowTheme.of(context)
+                                .titleSmall
+                                .override(
+                                  fontFamily: 'Inter Tight',
+                                  color: Colors.white,
+                                ),
+                            elevation: 2.0,
+                            borderRadius: BorderRadius.circular(25.0),
+                          ),
+                        ),
                   Row(
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -439,14 +501,9 @@ class _SignUpPageWidgetState extends State<SignUpPageWidget> {
                         style: FlutterFlowTheme.of(context).bodyMedium.override(
                               fontFamily: 'Inter',
                               color: FlutterFlowTheme.of(context).secondaryText,
-                              letterSpacing: 0.0,
                             ),
                       ),
                       InkWell(
-                        splashColor: Colors.transparent,
-                        focusColor: Colors.transparent,
-                        hoverColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
                         onTap: () async {
                           context.pushNamed('login_page');
                         },
@@ -456,7 +513,6 @@ class _SignUpPageWidgetState extends State<SignUpPageWidget> {
                               FlutterFlowTheme.of(context).bodyMedium.override(
                                     fontFamily: 'Inter',
                                     color: Color(0xFFE59368),
-                                    letterSpacing: 0.0,
                                     fontWeight: FontWeight.w600,
                                   ),
                         ),

@@ -1,3 +1,15 @@
+// Project-level build.gradle (android/build.gradle)
+buildscript {
+    repositories {
+        google()  // Required for Google services
+        mavenCentral()  // Required for Maven dependencies
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.4.2' // Android Gradle Plugin
+        classpath 'com.google.gms:google-services:4.3.15' // Google Services plugin
+    }
+}
+
 allprojects {
     repositories {
         google()
@@ -17,13 +29,10 @@ subprojects {
     }
 }
 subprojects {
-<<<<<<< Updated upstream
-=======
     project.buildDir = "${rootProject.buildDir}/${project.name}"
->>>>>>> Stashed changes
     project.evaluationDependsOn(':app')
 }
 
-task clean(type: Delete) {
+tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
