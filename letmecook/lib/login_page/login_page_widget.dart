@@ -233,6 +233,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                                   .bodyLarge
                                   .override(
                                     fontFamily: 'Inter',
+                                    color: Colors.black,
                                     letterSpacing: 0.0,
                                   ),
                               minLines: 1,
