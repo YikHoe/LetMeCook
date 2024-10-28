@@ -34,6 +34,12 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
     _model.textFieldFocusNode2 ??= FocusNode();
   }
 
+  void clearForm() {
+  // Reset any form fields, controllers, or variables here.
+  _model.textController1?.clear(); 
+  _model.textController2?.clear(); 
+  }
+
   @override
   void dispose() {
     _model.dispose();
@@ -65,6 +71,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
 
       // Redirect to home page on successful login
       context.pushNamed('normal_user_home_page');
+      clearForm();
     } on FirebaseAuthException catch (e) {
       //String message = 'An error occurred, please try again.';
       // Debugging: Print error code to console

@@ -17,8 +17,10 @@ class NormalUserHomePageWidget extends StatefulWidget {
 
 class _NormalUserHomePageWidgetState extends State<NormalUserHomePageWidget> {
   late NormalUserHomePageModel _model;
-
   final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  // Add current page index
+  int currentPageIndex = 0;
 
   @override
   void initState() {
@@ -29,7 +31,6 @@ class _NormalUserHomePageWidgetState extends State<NormalUserHomePageWidget> {
   @override
   void dispose() {
     _model.dispose();
-
     super.dispose();
   }
 
@@ -40,52 +41,49 @@ class _NormalUserHomePageWidgetState extends State<NormalUserHomePageWidget> {
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: Color(0xFFF1F4F8),
-        body: InkWell(
-          splashColor: Colors.transparent,
-          focusColor: Colors.transparent,
-          hoverColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          onTap: () async {
-            context.pop();
-          },
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Material(
-                color: Colors.transparent,
-                elevation: 2.0,
-                child: Container(
-                  width: MediaQuery.sizeOf(context).width * 1.254,
-                  height: 80.0,
-                  decoration: BoxDecoration(
-                    color: Color(0xFFE59368),
-                  ),
-                  child: Padding(
-                    padding:
-                        EdgeInsetsDirectional.fromSTEB(16.0, 24.0, 16.0, 24.0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          'LetMeCook',
-                          style: FlutterFlowTheme.of(context)
-                              .headlineMedium
-                              .override(
-                                fontFamily: 'Inter Tight',
-                                color: Colors.white,
-                                letterSpacing: 0.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                      ],
-                    ),
+        body: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            // Keep the header
+            Material(
+              color: Colors.transparent,
+              elevation: 2.0,
+              child: Container(
+                width: MediaQuery.sizeOf(context).width * 1.254,
+                height: 80.0,
+                decoration: BoxDecoration(
+                  color: Color(0xFFE59368),
+                ),
+                child: Padding(
+                  padding:
+                      EdgeInsetsDirectional.fromSTEB(16.0, 24.0, 16.0, 24.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'LetMeCook',
+                        style: FlutterFlowTheme.of(context)
+                            .headlineMedium
+                            .override(
+                              fontFamily: 'Inter Tight',
+                              color: Colors.white,
+                              letterSpacing: 0.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              Expanded(
-                child: Padding(
+            ),
+
+            // Content area that changes based on navigation
+            Expanded(
+              child: <Widget>[
+                // Home Page Content
+                Padding(
                   padding:
                       EdgeInsetsDirectional.fromSTEB(24.0, 24.0, 24.0, 24.0),
                   child: SingleChildScrollView(
@@ -291,27 +289,125 @@ class _NormalUserHomePageWidgetState extends State<NormalUserHomePageWidget> {
                     ),
                   ),
                 ),
-              ),
-              Material(
-                color: Colors.transparent,
-                elevation: 4.0,
-                child: Container(
-                  width: MediaQuery.sizeOf(context).width * 1.0,
-                  height: 80.0,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+
+                // List Page Content
+                Padding(
+                  padding:
+                      EdgeInsetsDirectional.fromSTEB(24.0, 24.0, 24.0, 24.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Column(
+                      Padding(
+                        // Add padding here
+                        padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0,
+                            16.0, 0), // Adjust padding values as needed
+                        child: Text(
+                          'My List',
+                          style: FlutterFlowTheme.of(context)
+                              .headlineSmall
+                              .override(
+                                fontFamily: 'Inter Tight',
+                                color: Colors.black,
+                                letterSpacing: 0.0,
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                      ),
+                      ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: 5,
+                        itemBuilder: (context, index) {
+                          return Card(
+                            color: Colors.white,
+                            child: ListTile(
+                              title: Text('Recipe ${index + 1}',
+                                  style: TextStyle(color: Colors.black)),
+                              leading: Icon(
+                                Icons.restaurant_menu,
+                                color: Colors.black,
+                              ),
+                              subtitle: Text('Recipe description goes here',
+                                  style: TextStyle(color: Colors.black)),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Profile Page Content
+                Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(
+                      24.0, 24.0, 24.0, 24.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Card(
+                        color: Colors.white,
+                        child: ListTile(
+                          leading: Icon(Icons.settings, color: Colors.black),
+                          title: Text('Edit Profile',
+                              style: TextStyle(color: Colors.black)),
+                        ),
+                      ),
+                      const Card(
+                        color: Colors.white,
+                        child: ListTile(
+                          leading: Icon(Icons.article, color: Colors.black),
+                          title: Text('Apply As Verified User',
+                              style: TextStyle(color: Colors.black)),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          // Use GoRouter to navigate to the login page when Logout is clicked
+                          GoRouter.of(context).go('/loginPage');
+                        },
+                        child: Card(
+                          color: Colors.white,
+                          child: ListTile(
+                            leading: Icon(Icons.logout, color: Colors.black),
+                            title: Text('Logout',
+                                style: TextStyle(color: Colors.black)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ][currentPageIndex],
+            ),
+
+            // Bottom Navigation Bar
+            Material(
+              color: Colors.transparent,
+              elevation: 4.0,
+              child: Container(
+                width: MediaQuery.sizeOf(context).width * 1.0,
+                height: 80.0,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          currentPageIndex = 0;
+                        });
+                      },
+                      child: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Icon(
                             Icons.home,
-                            color: Color(0xFFE59368),
+                            color: currentPageIndex == 0
+                                ? Color(0xFFE59368)
+                                : FlutterFlowTheme.of(context).secondaryText,
                             size: 28.0,
                           ),
                           Text(
@@ -319,19 +415,31 @@ class _NormalUserHomePageWidgetState extends State<NormalUserHomePageWidget> {
                             style:
                                 FlutterFlowTheme.of(context).bodySmall.override(
                                       fontFamily: 'Inter',
-                                      color: Color(0xFFE59368),
+                                      color: currentPageIndex == 0
+                                          ? Color(0xFFE59368)
+                                          : FlutterFlowTheme.of(context)
+                                              .secondaryText,
                                       letterSpacing: 0.0,
                                     ),
                           ),
                         ],
                       ),
-                      Column(
+                    ),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          currentPageIndex = 1;
+                        });
+                      },
+                      child: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Icon(
                             Icons.list,
-                            color: FlutterFlowTheme.of(context).secondaryText,
+                            color: currentPageIndex == 1
+                                ? Color(0xFFE59368)
+                                : FlutterFlowTheme.of(context).secondaryText,
                             size: 28.0,
                           ),
                           Text(
@@ -339,20 +447,31 @@ class _NormalUserHomePageWidgetState extends State<NormalUserHomePageWidget> {
                             style:
                                 FlutterFlowTheme.of(context).bodySmall.override(
                                       fontFamily: 'Inter',
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryText,
+                                      color: currentPageIndex == 1
+                                          ? Color(0xFFE59368)
+                                          : FlutterFlowTheme.of(context)
+                                              .secondaryText,
                                       letterSpacing: 0.0,
                                     ),
                           ),
                         ],
                       ),
-                      Column(
+                    ),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          currentPageIndex = 2;
+                        });
+                      },
+                      child: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Icon(
                             Icons.person_outline,
-                            color: FlutterFlowTheme.of(context).secondaryText,
+                            color: currentPageIndex == 2
+                                ? Color(0xFFE59368)
+                                : FlutterFlowTheme.of(context).secondaryText,
                             size: 28.0,
                           ),
                           Text(
@@ -360,19 +479,21 @@ class _NormalUserHomePageWidgetState extends State<NormalUserHomePageWidget> {
                             style:
                                 FlutterFlowTheme.of(context).bodySmall.override(
                                       fontFamily: 'Inter',
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryText,
+                                      color: currentPageIndex == 2
+                                          ? Color(0xFFE59368)
+                                          : FlutterFlowTheme.of(context)
+                                              .secondaryText,
                                       letterSpacing: 0.0,
                                     ),
                           ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

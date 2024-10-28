@@ -41,6 +41,15 @@ class _SignUpPageWidgetState extends State<SignUpPageWidget> {
     _model.textFieldFocusNode4 ??= FocusNode();
   }
 
+  void clearForm() {
+  // Reset any form fields, controllers, or variables here.
+  _model.textController1?.clear(); 
+  _model.textController2?.clear(); 
+  _model.textController3?.clear(); 
+  _model.textController4?.clear(); 
+}
+
+
   @override
   void dispose() {
     _model.dispose();
@@ -89,7 +98,7 @@ class _SignUpPageWidgetState extends State<SignUpPageWidget> {
       });
 
       _showSnackBar('Account created successfully!');
-
+      clearForm();
       // Navigate to the home page after success
       context.pushNamed('login_page');
     } on FirebaseAuthException catch (e) {
