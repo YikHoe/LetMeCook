@@ -300,7 +300,7 @@ class _NormalUserHomePageWidgetState extends State<NormalUserHomePageWidget> {
                       Padding(
                         // Add padding here
                         padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0,
-                            16.0, 0), // Adjust padding values as needed
+                            16.0, 16), // Adjust padding values as needed
                         child: Text(
                           'My List',
                           style: FlutterFlowTheme.of(context)
@@ -351,12 +351,17 @@ class _NormalUserHomePageWidgetState extends State<NormalUserHomePageWidget> {
                               style: TextStyle(color: Colors.black)),
                         ),
                       ),
-                      const Card(
-                        color: Colors.white,
-                        child: ListTile(
-                          leading: Icon(Icons.article, color: Colors.black),
-                          title: Text('Apply As Verified User',
-                              style: TextStyle(color: Colors.black)),
+                      InkWell(
+                        onTap: () {
+                          context.pushNamed('apply_as_verified_user_page');
+                        },
+                        child: Card(
+                          color: Colors.white,
+                          child: ListTile(
+                            leading: Icon(Icons.article, color: Colors.black),
+                            title: Text('Apply As Verified User',
+                                style: TextStyle(color: Colors.black)),
+                          ),
                         ),
                       ),
                       InkWell(

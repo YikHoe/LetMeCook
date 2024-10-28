@@ -57,6 +57,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: 'normal_user_home_page',
           path: '/normalUserHomePage',
           builder: (context, params) => NormalUserHomePageWidget(),
+        ),
+        FFRoute(
+          name: 'apply_as_verified_user_page',
+          path: '/applyAsVerifiedUserPage',
+          builder: (context, params) => ApplyAsVerifiedUserPageWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );
