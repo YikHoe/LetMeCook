@@ -514,19 +514,19 @@ class _VerifiedUserHomePageWidgetState extends State<VerifiedUserHomePageWidget>
                               style: TextStyle(color: Colors.black)),
                         ),
                       ),
-                      // InkWell(
-                      //   onTap: () {
-                      //     context.pushNamed('apply_as_verified_user_page');
-                      //   },
-                      //   child: Card(
-                      //     color: Colors.white,
-                      //     child: ListTile(
-                      //       leading: Icon(Icons.article, color: Colors.black),
-                      //       title: Text('Apply As Verified User',
-                      //           style: TextStyle(color: Colors.black)),
-                      //     ),
-                      //   ),
-                      // ),
+                      InkWell(
+                        onTap: () {
+                          context.pushNamed('upload_recipe_page');
+                        },
+                        child: Card(
+                          color: Colors.white,
+                          child: ListTile(
+                            leading: Icon(Icons.article, color: Colors.black),
+                            title: Text('Upload Recipe',
+                                style: TextStyle(color: Colors.black)),
+                          ),
+                        ),
+                      ),
                       InkWell(
                         onTap: () {
                           // Use GoRouter to navigate to the login page when Logout is clicked

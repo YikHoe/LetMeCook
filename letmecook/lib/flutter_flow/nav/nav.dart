@@ -67,6 +67,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: 'apply_as_verified_user_page',
           path: '/applyAsVerifiedUserPage',
           builder: (context, params) => ApplyAsVerifiedUserPageWidget(),
+        ),
+        FFRoute(
+          name: 'upload_recipe_page',
+          path: '/uploadRecipePage',
+          builder: (context, params) => UploadRecipePageWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );
