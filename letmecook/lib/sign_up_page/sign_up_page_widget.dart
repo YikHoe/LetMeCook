@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'sign_up_page_model.dart';
 export 'sign_up_page_model.dart';
+import 'package:letmecook/repositories/auth_repository.dart';
 
 class SignUpPageWidget extends StatefulWidget {
   const SignUpPageWidget({super.key});
@@ -19,6 +20,7 @@ class SignUpPageWidget extends StatefulWidget {
 
 class _SignUpPageWidgetState extends State<SignUpPageWidget> {
   late SignUpPageModel _model;
+  final AuthRepository _authRepository = AuthRepository();
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isLoading = false;
@@ -62,59 +64,29 @@ class _SignUpPageWidgetState extends State<SignUpPageWidget> {
     final password = _model.textController3?.text.trim() ?? '';
     final confirmPassword = _model.textController4?.text.trim() ?? '';
 
-    // Basic input validation
-    if (username.isEmpty) {
-      _showSnackBar('Please enter a username.');
-      return;
-    }
-    if (email.isEmpty || !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
-      _showSnackBar('Please enter a valid email address.');
-      return;
-    }
-    if (password.isEmpty || password.length < 6) {
-      _showSnackBar('Password must be at least 6 characters.');
-      return;
-    }
-    if (password != confirmPassword) {
-      _showSnackBar('Passwords do not match.');
-      return;
-    }
-
     setState(() => _isLoading = true);
 
-    try {
-      // Create user with Firebase Auth
-      final UserCredential userCredential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: password);
+    // Call signUpWithEmail in AuthRepository and handle the response
+    final String? result = await _authRepository.signUpWithEmail(
+      username,
+      email,
+      password,
+      confirmPassword,
+    );
 
-      // Save user info to Firestore
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userCredential.user!.uid)
-          .set({
-        'email': email,
-        'username': username,
-        'user_role': "normal_user",
-      });
+    setState(() => _isLoading = false);
 
+    if (result == null) {
+      // Success - navigate to login page or home page
       _showSnackBar('Account created successfully!');
       clearForm();
-      // Navigate to the home page after success
       context.pushNamed('login_page');
-    } on FirebaseAuthException catch (e) {
-      String message = 'An error occurred, please try again.';
-      if (e.code == 'email-already-in-use') {
-        message = 'The email is already in use by another account.';
-      } else if (e.code == 'weak-password') {
-        message = 'The password provided is too weak.';
-      }
-      _showSnackBar(message);
-    } finally {
-      setState(() => _isLoading = false);
+    } else {
+      // Display error message
+      _showSnackBar(result);
     }
   }
 
-// Helper function to show snackbar messages
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),

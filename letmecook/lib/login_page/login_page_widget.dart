@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'login_page_model.dart';
 export 'login_page_model.dart';
+import 'package:letmecook/repositories/auth_repository.dart';
 
 class LoginPageWidget extends StatefulWidget {
   const LoginPageWidget({super.key});
@@ -18,6 +19,7 @@ class LoginPageWidget extends StatefulWidget {
 
 class _LoginPageWidgetState extends State<LoginPageWidget> {
   late LoginPageModel _model;
+  final AuthRepository _authRepository = AuthRepository();
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isLoading = false;
@@ -62,60 +64,24 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
 
     setState(() => _isLoading = true);
 
-    try {
-      // Firebase Email & Password Sign-in
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+    // Call signInWithEmail in AuthRepository and handle the response
+    final String? result = await _authRepository.signInWithEmail(email, password);
 
-      // Redirect to home page on successful login
-      context.pushNamed('normal_user_home_page');
-      clearForm();
-    } on FirebaseAuthException catch (e) {
-      //String message = 'An error occurred, please try again.';
-      // Debugging: Print error code to console
-      print("FirebaseAuthException code: ${e.code}");
+    setState(() => _isLoading = false);
 
-      if (e.code == 'invalid-credential') {
-        String message = 'Incorrect email or password, please try again.';
-        _showSnackBar(message);
-      }
-    } catch (e) {
-      // Catch any other exceptions that are not FirebaseAuthExceptions
-      _showSnackBar('An unexpected error occurred, please try again.');
-      print("Exception: ${e.toString()}");
-    } finally {
-      setState(() => _isLoading = false);
-    }
+  if (result == 'normal_user') {
+    clearForm();
+    context.pushNamed('normal_user_home_page');
+  } else if (result == 'verified_user') {
+    clearForm();
+    context.pushNamed('verified_user_home_page');
+  } else if (result == 'admin') {
+    clearForm();
+    context.pushNamed('admin_home_page');
+  } else {
+    // Show the error message from signInWithEmail if it’s not a role
+    _showSnackBar(result ?? 'Login failed, please try again.');
   }
-
-  Future<void> _loginWithGoogle() async {
-    setState(() => _isLoading = true);
-
-    try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      if (googleUser == null) {
-        _showSnackBar('Google sign-in cancelled.');
-        setState(() => _isLoading = false);
-        return;
-      }
-
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      await FirebaseAuth.instance.signInWithCredential(credential);
-      context.pushNamed('normal_user_home_page');
-    } catch (e) {
-      print(e);
-      _showSnackBar('Google sign-in failed. Please try again.');
-    } finally {
-      setState(() => _isLoading = false);
-    }
   }
 
   // Helper function to show snackbar messages

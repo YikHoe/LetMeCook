@@ -59,6 +59,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => NormalUserHomePageWidget(),
         ),
         FFRoute(
+          name: 'verified_user_home_page',
+          path: '/verifiedUserHomePage',
+          builder: (context, params) => VerifiedUserHomePageWidget(),
+        ),
+        FFRoute(
           name: 'apply_as_verified_user_page',
           path: '/applyAsVerifiedUserPage',
           builder: (context, params) => ApplyAsVerifiedUserPageWidget(),

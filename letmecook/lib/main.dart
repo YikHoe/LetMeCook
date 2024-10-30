@@ -13,16 +13,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   GoRouter.optionURLReflectsImperativeAPIs = true;
   usePathUrlStrategy();
 
   await FlutterFlowTheme.initialize();
-
   runApp(MyApp());
-
-    await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
 }
 
 class MyApp extends StatefulWidget {

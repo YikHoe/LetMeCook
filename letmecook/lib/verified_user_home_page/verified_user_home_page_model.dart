@@ -1,13 +1,13 @@
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
-import 'normal_user_home_page_widget.dart' show NormalUserHomePageWidget;
+import 'verified_user_home_page_widget.dart' show VerifiedUserHomePageWidget;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-class NormalUserHomePageModel
-    extends FlutterFlowModel<NormalUserHomePageWidget> {
+class VerifiedUserHomePageModel
+    extends FlutterFlowModel<VerifiedUserHomePageWidget> {
   TextEditingController searchController = TextEditingController();
 
   @override

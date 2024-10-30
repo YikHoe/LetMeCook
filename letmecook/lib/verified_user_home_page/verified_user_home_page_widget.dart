@@ -4,20 +4,20 @@ import '/flutter_flow/flutter_flow_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'normal_user_home_page_model.dart';
-export 'normal_user_home_page_model.dart';
+import 'verified_user_home_page_model.dart';
+export 'verified_user_home_page_model.dart';
 import 'package:letmecook/repositories/auth_repository.dart';
 
-class NormalUserHomePageWidget extends StatefulWidget {
-  const NormalUserHomePageWidget({super.key});
+class VerifiedUserHomePageWidget extends StatefulWidget {
+  const VerifiedUserHomePageWidget({super.key});
 
   @override
-  State<NormalUserHomePageWidget> createState() =>
-      _NormalUserHomePageWidgetState();
+  State<VerifiedUserHomePageWidget> createState() =>
+      _VerifiedUserHomePageWidgetState();
 }
 
-class _NormalUserHomePageWidgetState extends State<NormalUserHomePageWidget> {
-  late NormalUserHomePageModel _model;
+class _VerifiedUserHomePageWidgetState extends State<VerifiedUserHomePageWidget> {
+  late VerifiedUserHomePageModel _model;
   final AuthRepository _authRepository = AuthRepository();
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -27,7 +27,7 @@ class _NormalUserHomePageWidgetState extends State<NormalUserHomePageWidget> {
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => NormalUserHomePageModel());
+    _model = createModel(context, () => VerifiedUserHomePageModel());
   }
 
   @override
@@ -514,19 +514,19 @@ class _NormalUserHomePageWidgetState extends State<NormalUserHomePageWidget> {
                               style: TextStyle(color: Colors.black)),
                         ),
                       ),
-                      InkWell(
-                        onTap: () {
-                          context.pushNamed('apply_as_verified_user_page');
-                        },
-                        child: Card(
-                          color: Colors.white,
-                          child: ListTile(
-                            leading: Icon(Icons.article, color: Colors.black),
-                            title: Text('Apply As Verified User',
-                                style: TextStyle(color: Colors.black)),
-                          ),
-                        ),
-                      ),
+                      // InkWell(
+                      //   onTap: () {
+                      //     context.pushNamed('apply_as_verified_user_page');
+                      //   },
+                      //   child: Card(
+                      //     color: Colors.white,
+                      //     child: ListTile(
+                      //       leading: Icon(Icons.article, color: Colors.black),
+                      //       title: Text('Apply As Verified User',
+                      //           style: TextStyle(color: Colors.black)),
+                      //     ),
+                      //   ),
+                      // ),
                       InkWell(
                         onTap: () {
                           // Use GoRouter to navigate to the login page when Logout is clicked
