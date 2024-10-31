@@ -2,12 +2,12 @@ import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
-import 'upload_recipe_page_widget.dart' show UploadRecipePageWidget;
+import 'display_pending_approval_recipe_page_widget.dart' show DisplayPendingApprovalRecipePageWidget;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-class UploadRecipePageModel extends FlutterFlowModel<UploadRecipePageWidget> {
+class DisplayPendingApprovalRecipePageModel extends FlutterFlowModel<DisplayPendingApprovalRecipePageWidget> {
   TextEditingController recipeTitleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController ingredientsController = TextEditingController();

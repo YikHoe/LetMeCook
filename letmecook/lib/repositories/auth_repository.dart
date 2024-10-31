@@ -3,17 +3,16 @@ import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:letmecook/collections.dart';
 import 'package:letmecook/models/users.dart';
 
-
 class AuthRepository {
   final auth.FirebaseAuth _firebaseAuth = auth.FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Get the current user
   auth.User? get currentUser => _firebaseAuth.currentUser;
-  
 
   // Sign up with email and password, including validation and Firestore storage
-  Future<String?> signUpWithEmail(String username, String email, String password, String confirmPassword) async {
+  Future<String?> signUpWithEmail(String username, String email,
+      String password, String confirmPassword) async {
     // Input validation
     if (username.isEmpty) return 'Please enter a username.';
     if (email.isEmpty || !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
@@ -28,7 +27,8 @@ class AuthRepository {
 
     try {
       // Firebase Auth user creation
-      final auth.UserCredential userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
+      final auth.UserCredential userCredential =
+          await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -44,7 +44,7 @@ class AuthRepository {
 
         await userCollection.doc(user.uid).set(newUser.toJson());
       }
-      
+
       return null; // Return null if the sign-up was successful
     } on auth.FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
@@ -59,19 +59,12 @@ class AuthRepository {
     }
   }
 
-    // Sign in with email and password, including validation and Firestore role check
+  // Sign in with email and password, including validation and Firestore role check
   Future<String?> signInWithEmail(String email, String password) async {
-    // Input validation
-    if (email.isEmpty || !email.contains('@')) {
-      return 'Please enter a valid email address.';
-    }
-    if (password.isEmpty || password.length < 6) {
-      return 'Password must be at least 6 characters.';
-    }
-
     try {
       // Firebase Auth sign-in
-      final auth.UserCredential userCredential = await _firebaseAuth.signInWithEmailAndPassword(
+      final auth.UserCredential userCredential =
+          await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -79,7 +72,8 @@ class AuthRepository {
       final auth.User? user = userCredential.user;
       if (user != null) {
         // Retrieve user role from Firestore
-        DocumentSnapshot userDoc = await _firestore.collection('users').doc(user.uid).get();
+        DocumentSnapshot userDoc =
+            await _firestore.collection('users').doc(user.uid).get();
         String userRole = userDoc.get('user_role');
 
         // Return the user role for routing purposes
@@ -87,12 +81,12 @@ class AuthRepository {
       }
       return null; // Return null if user or role is not found
     } on auth.FirebaseAuthException catch (e) {
-        return 'Incorrect email or password, please try again.';
+      return 'Incorrect email or password, please try again.';
     } catch (e) {
       return 'An unexpected error occurred, please try again.';
     }
   }
-  
+
   // Sign out
   Future<void> logout() async {
     try {
@@ -101,11 +95,9 @@ class AuthRepository {
       print('Error signing out: $e');
     }
   }
+
+  // Get currently signed-in user
+  auth.User? getCurrentUser() {
+    return _firebaseAuth.currentUser;
+  }
 }
-
-
-
-  // // Get currently signed-in user
-  // auth.User? getCurrentUser() {
-  //   return _firebaseAuth.currentUser;
-  // }

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:letmecook/pending_approval_recipe_page/pending_approval_recipe_page_widget.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 
@@ -64,6 +65,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => VerifiedUserHomePageWidget(),
         ),
         FFRoute(
+          name: 'admin_home_page',
+          path: '/adminHomePage',
+          builder: (context, params) => AdminHomePageWidget(),
+        ),
+        FFRoute(
           name: 'apply_as_verified_user_page',
           path: '/applyAsVerifiedUserPage',
           builder: (context, params) => ApplyAsVerifiedUserPageWidget(),
@@ -72,6 +78,16 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: 'upload_recipe_page',
           path: '/uploadRecipePage',
           builder: (context, params) => UploadRecipePageWidget(),
+        ),
+        FFRoute(
+          name: 'pending_approval_recipe_page',
+          path: '/pendingApprovalRecipePage',
+          builder: (context, params) => PendingApprovalRecipePageWidget(),
+        ),
+        FFRoute(
+          name: 'display_pending_approval_recipe_page',
+          path: '/displayPendingApprovalRecipePage',
+          builder: (context, params) => DisplayPendingApprovalRecipePageWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );

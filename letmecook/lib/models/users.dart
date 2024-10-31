@@ -5,7 +5,6 @@ class User {
   final String user_role;
   final String username;
 
-
   User({
     required this.email,
     required this.user_role,
