@@ -21,19 +21,14 @@ class ApplyAsVerifiedUserPageModel extends FlutterFlowModel<ApplyAsVerifiedUserP
   // State field(s) for TextField widget.
   FocusNode? textFieldFocusNode3;
   TextEditingController? textController3;
-  late bool passwordVisibility1;
   String? Function(BuildContext, String?)? textController3Validator;
   // State field(s) for TextField widget.
   FocusNode? textFieldFocusNode4;
   TextEditingController? textController4;
-  late bool passwordVisibility2;
   String? Function(BuildContext, String?)? textController4Validator;
 
   @override
-  void initState(BuildContext context) {
-    passwordVisibility1 = false;
-    passwordVisibility2 = false;
-  }
+  void initState(BuildContext context) {}
 
   @override
   void dispose() {

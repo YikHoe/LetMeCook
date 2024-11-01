@@ -9,6 +9,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'apply_as_verified_user_page_model.dart';
 export 'apply_as_verified_user_page_model.dart';
+import 'package:letmecook/repositories/applications_repository.dart';
+
 
 class ApplyAsVerifiedUserPageWidget extends StatefulWidget {
   const ApplyAsVerifiedUserPageWidget({super.key});
@@ -56,62 +58,38 @@ class _ApplyAsVerifiedUserPageWidgetState extends State<ApplyAsVerifiedUserPageW
     super.dispose();
   }
 
-  Future<void> _signUp() async {
-    // final username = _model.textController1?.text.trim() ?? '';
-    // final email = _model.textController2?.text.trim() ?? '';
-    // final password = _model.textController3?.text.trim() ?? '';
-    // final confirmPassword = _model.textController4?.text.trim() ?? '';
+  Future<void> _verifyApply() async {
+    final fullName = _model.textController1?.text.trim() ?? '';
+    final age = _model.textController2?.text.trim() ?? '';
+    final occupation = _model.textController3?.text.trim() ?? '';
+    final yearsOfExp = _model.textController4?.text.trim() ?? '';
 
-    // // Basic input validation
-    // if (username.isEmpty) {
-    //   _showSnackBar('Please enter a username.');
-    //   return;
-    // }
-    // if (email.isEmpty || !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
-    //   _showSnackBar('Please enter a valid email address.');
-    //   return;
-    // }
-    // if (password.isEmpty || password.length < 6) {
-    //   _showSnackBar('Password must be at least 6 characters.');
-    //   return;
-    // }
-    // if (password != confirmPassword) {
-    //   _showSnackBar('Passwords do not match.');
-    //   return;
-    // }
+    // Basic input validation
+    if (fullName.isEmpty) {
+      _showSnackBar('Name required!');
+      return;
+    }
+    if (age.isEmpty) {
+      _showSnackBar('Age required!');
+      return;
+    } else if (int.parse(age) < 13 || int.parse(age) > 100) {
+      _showSnackBar('Please enter a valid age!');
+      return;
+    }
 
-    // setState(() => _isLoading = true);
+    if (occupation.isEmpty) {
+      _showSnackBar('Occupation is required!');
+      return;
+    }
+    if (yearsOfExp.isEmpty) {
+      _showSnackBar('Years of experiences in cooking is required!');
+      return;
+    }
 
-    // try {
-    //   // Create user with Firebase Auth
-    //   final UserCredential userCredential = await FirebaseAuth.instance
-    //       .createUserWithEmailAndPassword(email: email, password: password);
+    setState(() => _isLoading = true);
 
-    //   // Save user info to Firestore
-    //   await FirebaseFirestore.instance
-    //       .collection('users')
-    //       .doc(userCredential.user!.uid)
-    //       .set({
-    //     'email': email,
-    //     'username': username,
-    //     'user_role': "normal_user",
-    //   });
-
-    //   _showSnackBar('Account created successfully!');
-    //   clearForm();
-    //   // Navigate to the home page after success
-    //   context.pushNamed('login_page');
-    // } on FirebaseAuthException catch (e) {
-    //   String message = 'An error occurred, please try again.';
-    //   if (e.code == 'email-already-in-use') {
-    //     message = 'The email is already in use by another account.';
-    //   } else if (e.code == 'weak-password') {
-    //     message = 'The password provided is too weak.';
-    //   }
-    //   _showSnackBar(message);
-    // } finally {
-    //   setState(() => _isLoading = false);
-    // }
+    // Application form submission
+    final String? result = await ApplicationsRepository().addApplication(fullName, int.parse(age), occupation, int.parse(yearsOfExp));
   }
 
 // Helper function to show snackbar messages
@@ -146,7 +124,7 @@ class _ApplyAsVerifiedUserPageWidgetState extends State<ApplyAsVerifiedUserPageW
             },
           ),
           title: Text(
-            'Sign Up',
+            'Application Form',
             style: FlutterFlowTheme.of(context).headlineMedium.override(
                   fontFamily: 'Inter Tight',
                   color: Colors.white,
@@ -168,7 +146,7 @@ class _ApplyAsVerifiedUserPageWidgetState extends State<ApplyAsVerifiedUserPageW
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    'Create an Account',
+                    'Application',
                     style: FlutterFlowTheme.of(context).headlineSmall.override(
                           fontFamily: 'Inter Tight',
                           color: Colors.black,
@@ -200,7 +178,7 @@ class _ApplyAsVerifiedUserPageWidgetState extends State<ApplyAsVerifiedUserPageW
                               autofocus: false,
                               obscureText: false,
                               decoration: InputDecoration(
-                                labelText: 'Username',
+                                labelText: 'Full Name',
                                 labelStyle: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
@@ -263,7 +241,7 @@ class _ApplyAsVerifiedUserPageWidgetState extends State<ApplyAsVerifiedUserPageW
                               autofocus: false,
                               obscureText: false,
                               decoration: InputDecoration(
-                                labelText: 'Email',
+                                labelText: 'Age',
                                 labelStyle: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
@@ -317,7 +295,7 @@ class _ApplyAsVerifiedUserPageWidgetState extends State<ApplyAsVerifiedUserPageW
                                     letterSpacing: 0.0,
                                   ),
                               minLines: 1,
-                              keyboardType: TextInputType.emailAddress,
+                              keyboardType: TextInputType.number,
                               validator: _model.textController2Validator
                                   .asValidator(context),
                             ),
@@ -325,23 +303,23 @@ class _ApplyAsVerifiedUserPageWidgetState extends State<ApplyAsVerifiedUserPageW
                               controller: _model.textController3,
                               focusNode: _model.textFieldFocusNode3,
                               autofocus: false,
-                              obscureText: !_model.passwordVisibility1,
+                              obscureText: false,
                               decoration: InputDecoration(
-                                labelText: 'Password',
+                                labelText: 'Occupation',
                                 labelStyle: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      fontFamily: 'Inter',
-                                      color: Colors.black,
-                                      letterSpacing: 0.0,
-                                    ),
+                                  fontFamily: 'Inter',
+                                  color: Colors.black,
+                                  letterSpacing: 0.0,
+                                ),
                                 hintStyle: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      fontFamily: 'Inter',
-                                      color: Colors.black,
-                                      letterSpacing: 0.0,
-                                    ),
+                                  fontFamily: 'Inter',
+                                  color: Colors.black,
+                                  letterSpacing: 0.0,
+                                ),
                                 enabledBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
                                     color: Color(0xFFE0E3E7),
@@ -372,29 +350,14 @@ class _ApplyAsVerifiedUserPageWidgetState extends State<ApplyAsVerifiedUserPageW
                                 ),
                                 filled: true,
                                 fillColor: Color(0xFFF1F4F8),
-                                suffixIcon: InkWell(
-                                  onTap: () => safeSetState(
-                                    () => _model.passwordVisibility1 =
-                                        !_model.passwordVisibility1,
-                                  ),
-                                  focusNode: FocusNode(skipTraversal: true),
-                                  child: Icon(
-                                    _model.passwordVisibility1
-                                        ? Icons.visibility_outlined
-                                        : Icons.visibility_off_outlined,
-                                    color: FlutterFlowTheme.of(context)
-                                        .secondaryText,
-                                    size: 22.0,
-                                  ),
-                                ),
                               ),
                               style: FlutterFlowTheme.of(context)
                                   .bodyLarge
                                   .override(
-                                    fontFamily: 'Inter',
-                                    color: Colors.black,
-                                    letterSpacing: 0.0,
-                                  ),
+                                fontFamily: 'Inter',
+                                color: Colors.black,
+                                letterSpacing: 0.0,
+                              ),
                               minLines: 1,
                               validator: _model.textController3Validator
                                   .asValidator(context),
@@ -403,23 +366,23 @@ class _ApplyAsVerifiedUserPageWidgetState extends State<ApplyAsVerifiedUserPageW
                               controller: _model.textController4,
                               focusNode: _model.textFieldFocusNode4,
                               autofocus: false,
-                              obscureText: !_model.passwordVisibility2,
+                              obscureText: false,
                               decoration: InputDecoration(
-                                labelText: 'Confirm Password',
+                                labelText: 'Years of Experience (cooking)',
                                 labelStyle: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      fontFamily: 'Inter',
-                                      color: Colors.black,
-                                      letterSpacing: 0.0,
-                                    ),
+                                  fontFamily: 'Inter',
+                                  color: Colors.black,
+                                  letterSpacing: 0.0,
+                                ),
                                 hintStyle: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      fontFamily: 'Inter',
-                                      color: Colors.black,
-                                      letterSpacing: 0.0,
-                                    ),
+                                  fontFamily: 'Inter',
+                                  color: Colors.black,
+                                  letterSpacing: 0.0,
+                                ),
                                 enabledBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
                                     color: Color(0xFFE0E3E7),
@@ -450,30 +413,16 @@ class _ApplyAsVerifiedUserPageWidgetState extends State<ApplyAsVerifiedUserPageW
                                 ),
                                 filled: true,
                                 fillColor: Color(0xFFF1F4F8),
-                                suffixIcon: InkWell(
-                                  onTap: () => safeSetState(
-                                    () => _model.passwordVisibility2 =
-                                        !_model.passwordVisibility2,
-                                  ),
-                                  focusNode: FocusNode(skipTraversal: true),
-                                  child: Icon(
-                                    _model.passwordVisibility2
-                                        ? Icons.visibility_outlined
-                                        : Icons.visibility_off_outlined,
-                                    color: FlutterFlowTheme.of(context)
-                                        .secondaryText,
-                                    size: 22.0,
-                                  ),
-                                ),
                               ),
                               style: FlutterFlowTheme.of(context)
                                   .bodyLarge
                                   .override(
-                                    fontFamily: 'Inter',
-                                    color: Colors.black,
-                                    letterSpacing: 0.0,
-                                  ),
+                                fontFamily: 'Inter',
+                                color: Colors.black,
+                                letterSpacing: 0.0,
+                              ),
                               minLines: 1,
+                              keyboardType: TextInputType.number,
                               validator: _model.textController4Validator
                                   .asValidator(context),
                             ),
@@ -485,8 +434,8 @@ class _ApplyAsVerifiedUserPageWidgetState extends State<ApplyAsVerifiedUserPageW
                   _isLoading
                       ? CircularProgressIndicator()
                       : FFButtonWidget(
-                          onPressed: _signUp,
-                          text: 'Sign Up',
+                          onPressed: _verifyApply,
+                          text: 'Submit',
                           options: FFButtonOptions(
                             width: MediaQuery.sizeOf(context).width * 0.9,
                             height: 50.0,
@@ -501,37 +450,24 @@ class _ApplyAsVerifiedUserPageWidgetState extends State<ApplyAsVerifiedUserPageW
                             borderRadius: BorderRadius.circular(25.0),
                           ),
                         ),
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Already have an account?',
-                        style: FlutterFlowTheme.of(context).bodyMedium.override(
-                              fontFamily: 'Inter',
-                              color: FlutterFlowTheme.of(context).secondaryText,
-                            ),
-                      ),
-                      InkWell(
-                        onTap: () async {
-                          context.pushNamed('login_page');
-                        },
-                        child: Text(
-                          'Log In',
-                          style:
-                              FlutterFlowTheme.of(context).bodyMedium.override(
-                                    fontFamily: 'Inter',
-                                    color: Color(0xFFE59368),
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                        ),
-                      ),
-                    ].divide(SizedBox(width: 4.0)),
-                  ),
                 ].divide(SizedBox(height: 24.0)),
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PendingApplicationWidgetState extends State<ApplyAsVerifiedUserPageWidget> {
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          
         ),
       ),
     );
