@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Recipe {
+  final String id; // This will hold the document ID
   final String recipeTitle;
   final String description;
   final String ingredients;
@@ -8,11 +9,12 @@ class Recipe {
   final int cookingTime;
   final String difficulty;
   final String videoTutorialLink;
-  final String image; // Changed from Blob to String to store the image URL
+  final String image;
   final String uploadedBy;
   final int status;
 
   Recipe({
+    required this.id,
     required this.recipeTitle,
     required this.description,
     required this.ingredients,
@@ -26,18 +28,19 @@ class Recipe {
   });
 
   factory Recipe.fromFirestore(DocumentSnapshot doc) {
-    Map data = doc.data() as Map<dynamic, dynamic>;
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return Recipe(
-      recipeTitle: data['recipeTitle'],
-      description: data['description'],
-      ingredients: data['ingredients'],
-      instructions: data['instructions'],
-      cookingTime: data['cookingTime'],
-      difficulty: data['difficulty'],
-      videoTutorialLink: data['videoTutorialLink'],
-      image: data['image'], // Now expecting a URL in string format
-      uploadedBy: data['uploadedBy'],
-      status: data['status'],
+      id: doc.id,  // Ensure ID is taken from doc.id
+      recipeTitle: data['recipeTitle'] ?? '',
+      description: data['description'] ?? '',
+      ingredients: data['ingredients'] ?? '',
+      instructions: data['instructions'] ?? '',
+      cookingTime: data['cookingTime'] ?? '',
+      difficulty: data['difficulty'] ?? '',
+      videoTutorialLink: data['videoTutorialLink'] ?? '',
+      image: data['image'] ?? '',
+      uploadedBy: data['uploadedBy'] ?? '',
+      status: data['status'] ?? 0,
     );
   }
 
