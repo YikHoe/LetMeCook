@@ -39,6 +39,8 @@ class _UploadRecipePageWidgetState extends State<UploadRecipePageWidget> {
     _model.instructionsController.clear();
     _model.cookingTimeController.clear();
     _model.videoTutorialLinkController.clear();
+    _imageBytes=null;
+    _imageFile=null;
   }
 
   @override

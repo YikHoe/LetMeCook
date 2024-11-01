@@ -73,50 +73,64 @@ class _PendingApprovalRecipePageWidgetState
           },
         ),
       ),
-body: Container(
-  color: Color(0xFFF1F4F8),
-  padding: EdgeInsets.all(24.0),
-  child: FutureBuilder(
-    future: _recipeRepository.getRecipesWithUsernames(),
-    builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-      if (!snapshot.hasData) {
-        return Container();
-      }
-      return ListView.builder(
-        itemCount: snapshot.data!.length,
-        itemBuilder: (context, index) {
-          var recipe = snapshot.data![index];
-          return InkWell(
-            onTap: () {
-              context.pushNamed(
-                'display_pending_approval_recipe_page',
-                extra: recipe,
-              );
-            },
-            child: Card(
-              color: Colors.white,
-              child: ListTile(
-                title: Text(
-                  recipe['recipeTitle'],
-                  style: TextStyle(color: Colors.black),
-                ),
-                leading: Icon(
-                  Icons.restaurant_menu,
-                  color: Colors.black,
-                ),
-                subtitle: Text(
-                  'Uploaded by ${recipe['username']}',
-                  style: TextStyle(color: Colors.black),
-                ),
-              ),
-            ),
-          );
-        },
-      );
-    },
-  ),
-),
+      body: Container(
+        color: Color(0xFFF1F4F8),
+        padding: EdgeInsets.all(24.0),
+        child: FutureBuilder(
+          future: _recipeRepository.getRecipesWithUsernames(),
+          builder:
+              (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+            // Check if the snapshot is still loading
+            if (!snapshot.hasData) {
+              return Center(child: CircularProgressIndicator());
+            }
 
+            // Check if there are no recipes available
+            if (snapshot.data!.isEmpty) {
+              return const Center(
+                child: Text(
+                  'No pending approval recipes to show',
+                  style: TextStyle(
+                      color: Colors.black), // Set the text color to black
+                ),
+              );
+            }
+
+            return ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                var recipe = snapshot.data![index];
+                return InkWell(
+                  onTap: () {
+                    context.pushNamed(
+                      'display_pending_approval_recipe_page',
+                      pathParameters: {'id': recipe['id']?.toString() ?? '0'},
+                      extra: recipe,
+                    );
+                  },
+                  child: Card(
+                    color: Colors.white,
+                    child: ListTile(
+                      title: Text(
+                        recipe['recipeTitle'],
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      leading: Icon(
+                        Icons.restaurant_menu,
+                        color: Colors.black,
+                      ),
+                      subtitle: Text(
+                        'Uploaded by ${recipe['username']}',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ),
     );
   }
 }
