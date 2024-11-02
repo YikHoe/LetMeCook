@@ -13,20 +13,30 @@ class ApplicationsRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _firebaseStorage = FirebaseStorage.instance;
 
-  Future<String?> addApplication(
+  // save and store application submitted by user
+  Future<Map<String, dynamic>> addApplication(
     String fullname,
     int age,
     String occupation,
     int yearsOfExp,
   ) async {
+    Map<String, dynamic> returnMessage = {};
     try {
       // Get current user
       final auth.User? user = _firebaseAuth.currentUser;
-      if (user == null) return 'You must be logged in to upload a recipe.';
+      if (user == null) {
+        returnMessage['status'] = 404;
+        returnMessage['message'] = 'Please login to proceed';
+        return returnMessage;
+      }
 
       // Fetch user data from Firestore to get user role
       final User? userData = await UserRepository().getUserData(user.uid);
-      if (userData == null) return 'User data not found.';
+      if (userData == null) {
+        returnMessage['status'] = 404;
+        returnMessage['message'] = 'User data not found!';
+        return returnMessage;
+      }
 
       // Create a new recipe object
       Applications application = Applications(
@@ -55,9 +65,60 @@ class ApplicationsRepository {
 
       // Add the application to Firestore
       await docRef.set(application.toJson()); // Use set() to specify the ID
-      return 'Application submitted.';
+      returnMessage['status'] = 200;
+      returnMessage['message'] = 'Application form submitted successfully';
+      return returnMessage;
     } catch (e) {
-      return 'An error occurred while submitting the application. Please try again later.';
+      returnMessage['status'] = 500;
+      returnMessage['message'] = 'Application Error';
+      return returnMessage;
+    }
+  }
+
+  // Check if user have pending application
+  Future<Map<String, dynamic>> checkPending() async {
+    Map<String, dynamic> applicationRecord = {};
+
+    try {
+      // Get current user
+      final auth.User? user = _firebaseAuth.currentUser;
+      if (user == null) {
+        applicationRecord['message'] = 'Login to view application.';
+
+        return applicationRecord;
+      }
+
+      // Fetch user data from Firestore to get user role
+      final User? userData = await UserRepository().getUserData(user.uid);
+      if (userData == null) {
+        applicationRecord['message'] = 'User not found!';
+
+        return applicationRecord;
+      }
+
+      applicationRecord['message'] = 200;
+
+      try {
+        QuerySnapshot pendingApplication = await _firestore
+            .collection('applications')
+            .where('userid', isEqualTo: user.uid)
+            .where('status', isEqualTo: 'PENDING')
+            .get();
+
+        if (pendingApplication.docs.isNotEmpty) {
+          applicationRecord['hasPending'] = true;
+        } else {
+          applicationRecord['hasPending'] = false;
+        }
+
+        return applicationRecord;
+      } catch (e) {
+        applicationRecord['message'] = 'Unexpected Error occurred. Please try again later.';
+        return applicationRecord;
+      }
+    } catch (e) {
+      applicationRecord['message'] = 'Unexpected Error occurred. Please try again later.';
+      return applicationRecord;
     }
   }
 }
