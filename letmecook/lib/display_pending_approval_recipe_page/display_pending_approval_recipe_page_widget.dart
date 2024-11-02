@@ -16,6 +16,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DisplayPendingApprovalRecipePageWidget extends StatefulWidget {
   final Map<String, dynamic> recipeData;
@@ -36,6 +37,7 @@ class _DisplayPendingApprovalRecipePageWidgetState
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final RecipeRepository recipeRepository = RecipeRepository();
   late YoutubePlayerController _youtubeController;
+  bool isDesktop = false;
 
   @override
   void initState() {
@@ -43,9 +45,13 @@ class _DisplayPendingApprovalRecipePageWidgetState
     _model =
         createModel(context, () => DisplayPendingApprovalRecipePageModel());
 
-    // Initialize YouTube controller if video link exists
+    // Determine if the app is running on a desktop platform
+    isDesktop =
+        !kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
+
+    // Initialize YouTube controller if video link exists and not on desktop
     String videoUrl = widget.recipeData['videoTutorialLink'] ?? '';
-    if (videoUrl.isNotEmpty) {
+    if (videoUrl.isNotEmpty && !isDesktop) {
       String videoId = YoutubePlayerController.convertUrlToId(videoUrl) ?? '';
       _youtubeController = YoutubePlayerController.fromVideoId(
         videoId: videoId,
@@ -60,7 +66,20 @@ class _DisplayPendingApprovalRecipePageWidgetState
   @override
   void dispose() {
     _model.dispose();
+    if (!isDesktop) {
+      _youtubeController.close();
+    }
     super.dispose();
+  }
+
+  // Helper to launch a URL in the default browser
+  Future<void> _launchURL(String url) async {
+    final Uri uri = Uri.parse(url); // Parse the string URL to a Uri object
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 
   // Helper widget to display each field as non-editable
@@ -322,26 +341,61 @@ class _DisplayPendingApprovalRecipePageWidgetState
             const SizedBox(height: 16.0),
             _buildReadOnlyField(
                 "Difficulty", widget.recipeData['difficulty'] ?? ''),
-            const SizedBox(height: 16.0),
-            // YouTube Video Tutorial
-            if (_youtubeController != null)
+// YouTube Video Tutorial
+            if (widget.recipeData['videoTutorialLink'] != null)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 8),
+                  // Check if the platform is desktop
+                  !kIsWeb &&
+                          (Platform.isWindows ||
+                              Platform.isLinux ||
+                              Platform.isMacOS)
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 8),
+                            // Non-editable text field with link using _buildReadOnlyField
+                            _buildReadOnlyField(
+                              "Video Tutorial Link",
+                              widget.recipeData['videoTutorialLink'],
+                              isCopyable:
+                                  true, // Allows copying the link to clipboard
+                            ),
+                            //const SizedBox(height: 4.0),
+                            // Clickable hyperlink
+                            InkWell(
+                              onTap: () => _launchURL(
+                                  widget.recipeData['videoTutorialLink']),
+                              child: const Text(
+                                "Watch on YouTube",
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : const SizedBox(height: 8),
+
+// "Video Tutorial" label
                   const Text(
-                    "Youtube Video Tutorial",
+                    "Video Tutorial",
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
                   ),
+
                   const SizedBox(height: 8),
+
                   SizedBox(
                     height: 200, // Set fixed height
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                          10.0), // Optional rounded corners
+                      borderRadius: BorderRadius.circular(10.0),
                       child: YoutubePlayerScaffold(
                         controller: _youtubeController,
                         builder: (context, player) {
@@ -356,7 +410,7 @@ class _DisplayPendingApprovalRecipePageWidgetState
                   const SizedBox(height: 16),
                 ],
               ),
-            //const SizedBox(height: 16.0),
+
             _buildImageSection(),
             const SizedBox(height: 24.0),
             _buildApprovalButtons(),
