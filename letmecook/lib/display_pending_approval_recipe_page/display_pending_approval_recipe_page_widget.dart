@@ -15,6 +15,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 class DisplayPendingApprovalRecipePageWidget extends StatefulWidget {
   final Map<String, dynamic> recipeData;
@@ -34,12 +35,26 @@ class _DisplayPendingApprovalRecipePageWidgetState
   late DisplayPendingApprovalRecipePageModel _model;
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final RecipeRepository recipeRepository = RecipeRepository();
+  late YoutubePlayerController _youtubeController;
 
   @override
   void initState() {
     super.initState();
     _model =
         createModel(context, () => DisplayPendingApprovalRecipePageModel());
+
+    // Initialize YouTube controller if video link exists
+    String videoUrl = widget.recipeData['videoTutorialLink'] ?? '';
+    if (videoUrl.isNotEmpty) {
+      String videoId = YoutubePlayerController.convertUrlToId(videoUrl) ?? '';
+      _youtubeController = YoutubePlayerController.fromVideoId(
+        videoId: videoId,
+        params: YoutubePlayerParams(
+          showControls: true,
+          showFullscreenButton: true,
+        ),
+      );
+    }
   }
 
   @override
@@ -308,10 +323,40 @@ class _DisplayPendingApprovalRecipePageWidgetState
             _buildReadOnlyField(
                 "Difficulty", widget.recipeData['difficulty'] ?? ''),
             const SizedBox(height: 16.0),
-            _buildReadOnlyField(
-                "Video Tutorial Link", widget.recipeData!['videoTutorialLink'],
-                isCopyable: true),
-            const SizedBox(height: 16.0),
+            // YouTube Video Tutorial
+            if (_youtubeController != null)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Youtube Video Tutorial",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 200, // Set fixed height
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(
+                          10.0), // Optional rounded corners
+                      child: YoutubePlayerScaffold(
+                        controller: _youtubeController,
+                        builder: (context, player) {
+                          return AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: player,
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            //const SizedBox(height: 16.0),
             _buildImageSection(),
             const SizedBox(height: 24.0),
             _buildApprovalButtons(),

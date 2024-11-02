@@ -43,6 +43,10 @@ class AuthRepository {
         );
 
         await userCollection.doc(user.uid).set(newUser.toJson());
+
+              await userCollection
+          .doc(user.uid)
+          .collection('savedRecipes');
       }
 
       return null; // Return null if the sign-up was successful
