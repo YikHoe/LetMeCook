@@ -46,7 +46,8 @@ class ApplicationsRepository {
           age: age,
           occupation: occupation,
           yearsOfExp: yearsOfExp,
-          status: 'PENDING'
+          status: 'PENDING',
+          reason: '',
       );
 
       // Add the recipe to Firestore and get the document reference
@@ -60,7 +61,8 @@ class ApplicationsRepository {
           age: age,
           occupation: occupation,
           yearsOfExp: yearsOfExp,
-          status: 'PENDING'
+          status: 'PENDING',
+          reason: '',
       );
 
       // Add the application to Firestore
@@ -107,6 +109,7 @@ class ApplicationsRepository {
 
         if (pendingApplication.docs.isNotEmpty) {
           applicationRecord['hasPending'] = true;
+          applicationRecord['id'] = pendingApplication.docs.first.id;
         } else {
           applicationRecord['hasPending'] = false;
         }
@@ -119,6 +122,33 @@ class ApplicationsRepository {
     } catch (e) {
       applicationRecord['message'] = 'Unexpected Error occurred. Please try again later.';
       return applicationRecord;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getAllPending() async {
+    List<Map<String, dynamic>> pendingApplications = [];
+
+    try {
+      QuerySnapshot allPending = await _firestore
+          .collection('applications')
+          .where('status', isEqualTo: 'PENDING')
+          .get();
+
+      for (var application in allPending.docs) {
+        Applications appRec = Applications.fromFirestore(application);
+
+        pendingApplications.add({
+          'id': application.id,
+          'userid': appRec.userid,
+          'fullname': appRec.fullname,
+          'age': appRec.age,
+          'occupation': appRec.occupation,
+          'yearsOfExp': appRec.yearsOfExp,
+        });
+      }
+      return pendingApplications;
+    } catch (e) {
+      return pendingApplications;
     }
   }
 }

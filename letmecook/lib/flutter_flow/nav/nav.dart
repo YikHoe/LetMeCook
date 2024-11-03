@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:letmecook/display_recipe_page/display_recipe_page_widget.dart';
 import 'package:letmecook/pending_approval_recipe_page/pending_approval_recipe_page_widget.dart';
+import 'package:letmecook/pending_approval_verifcation_page/pending_approval_verification_widget.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 
@@ -89,6 +90,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: 'pending_approval_recipe_page',
           path: '/pendingApprovalRecipePage',
           builder: (context, params) => PendingApprovalRecipePageWidget(),
+        ),
+        FFRoute(
+          name: 'pending_approval_verification_page',
+          path: '/pendingVerificationPage',
+          builder: (context, params) => PendingApprovalApplicationsWidget(),
         ),
         FFRoute(
           name: 'display_pending_approval_recipe_page',
