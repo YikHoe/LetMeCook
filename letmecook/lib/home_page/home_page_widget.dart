@@ -472,7 +472,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                         InkWell(
                           onTap: () {
                             context.pushNamed(
-                              'view_pending_approval_recipe_page',
+                              'pending_approval_recipe_page',
                             );
                           },
                           child: Card(
@@ -480,6 +480,21 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                             child: ListTile(
                               leading: Icon(Icons.pending, color: Colors.black),
                               title: Text('View Pending Approval Recipes',
+                                  style: TextStyle(color: Colors.black)),
+                            ),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            context.pushNamed(
+                              'pending_approval_verification_page',
+                            );
+                          },
+                          child: Card(
+                            color: Colors.white,
+                            child: ListTile(
+                              leading: Icon(Icons.pending, color: Colors.black),
+                              title: Text('View Pending Approval Verification',
                                   style: TextStyle(color: Colors.black)),
                             ),
                           ),

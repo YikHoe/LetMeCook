@@ -91,6 +91,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => PendingApprovalRecipePageWidget(),
         ),
         FFRoute(
+          name: 'pending_approval_verification_page',
+          path: '/pendingApprovalVerificationPage',
+          builder: (context, params) => PendingApprovalVerificationPageWidget(),
+        ),
+        FFRoute(
           name: 'display_pending_approval_recipe_page',
           path: '/displayPendingApprovalRecipePage/:id',
           builder: (context, params) {
@@ -103,6 +108,16 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
             );
           },
         ),
+        // FFRoute(
+        //   name: 'display_pending_approval_verification_page',
+        //   path: '/displayPendingApprovalVerificationPage/:id',
+        //   builder: (context, params) {
+        //     final verificationData = params.state.extra as Map<String, dynamic>?;
+        //     return DisplayPendingApprovalVerificationPageWidget(
+        //       verificationData: verificationData,
+        //     );
+        //   },
+        // ),
         FFRoute(
           name: 'display_recipe_page',
           path: '/displayRecipePage/:id',
