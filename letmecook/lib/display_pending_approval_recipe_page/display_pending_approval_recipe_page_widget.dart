@@ -82,9 +82,9 @@ class _DisplayPendingApprovalRecipePageWidgetState
     }
   }
 
-  // Helper widget to display each field as non-editable
+// Helper widget to display each field as non-editable and clickable
   Widget _buildReadOnlyField(String label, String value,
-      {bool isCopyable = false}) {
+      {bool isCopyable = false, bool isClickable = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -95,14 +95,19 @@ class _DisplayPendingApprovalRecipePageWidgetState
         ),
         const SizedBox(height: 8),
         GestureDetector(
-          onTap: isCopyable
+          onTap: isClickable
               ? () async {
-                  await Clipboard.setData(ClipboardData(text: value));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Link copied to clipboard!')),
-                  );
+                  _launchURL(value); // Launch the URL when clicked
                 }
-              : null,
+              : isCopyable
+                  ? () async {
+                      await Clipboard.setData(ClipboardData(text: value));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Link copied to clipboard!')),
+                      );
+                    }
+                  : null,
           child: Container(
             width: double.infinity,
             padding: const EdgeInsets.all(12.0),
@@ -113,7 +118,15 @@ class _DisplayPendingApprovalRecipePageWidgetState
             ),
             child: Text(
               value,
-              style: const TextStyle(fontSize: 16, color: Colors.black),
+              style: TextStyle(
+                fontSize: 16,
+                color: isClickable
+                    ? Colors.blue
+                    : Colors.black, // Blue if clickable
+                decoration: isClickable
+                    ? TextDecoration.underline
+                    : TextDecoration.none, // Underline only if clickable
+              ),
             ),
           ),
         ),
@@ -268,6 +281,63 @@ class _DisplayPendingApprovalRecipePageWidgetState
     }
   }
 
+  bool _isDesktop() {
+    return !kIsWeb &&
+        (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
+  }
+
+  // Widget for displaying the video tutorial link or embedded video
+  Widget _buildVideoTutorialSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _isDesktop()
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Non-editable text field with clickable link
+                  _buildReadOnlyField(
+                    "Video Tutorial Link",
+                    widget.recipeData['videoTutorialLink'],
+                    isClickable: true, // Makes the link clickable
+                  ),
+                ],
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Display "Video Tutorial" text only for non-desktop platforms
+                  const Text(
+                    "Video Tutorial",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 200, // Set fixed height
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10.0),
+                      child: YoutubePlayerScaffold(
+                        controller: _youtubeController,
+                        builder: (context, player) {
+                          return AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: player,
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.recipeData == null) {
@@ -341,76 +411,8 @@ class _DisplayPendingApprovalRecipePageWidgetState
             const SizedBox(height: 16.0),
             _buildReadOnlyField(
                 "Difficulty", widget.recipeData['difficulty'] ?? ''),
-// YouTube Video Tutorial
-            if (widget.recipeData['videoTutorialLink'] != null)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 8),
-                  // Check if the platform is desktop
-                  !kIsWeb &&
-                          (Platform.isWindows ||
-                              Platform.isLinux ||
-                              Platform.isMacOS)
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 8),
-                            // Non-editable text field with link using _buildReadOnlyField
-                            _buildReadOnlyField(
-                              "Video Tutorial Link",
-                              widget.recipeData['videoTutorialLink'],
-                              isCopyable:
-                                  true, // Allows copying the link to clipboard
-                            ),
-                            //const SizedBox(height: 4.0),
-                            // Clickable hyperlink
-                            InkWell(
-                              onTap: () => _launchURL(
-                                  widget.recipeData['videoTutorialLink']),
-                              child: const Text(
-                                "Watch on YouTube",
-                                style: TextStyle(
-                                  color: Colors.blue,
-                                  decoration: TextDecoration.underline,
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      : const SizedBox(height: 8),
-
-// "Video Tutorial" label
-                  const Text(
-                    "Video Tutorial",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  SizedBox(
-                    height: 200, // Set fixed height
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10.0),
-                      child: YoutubePlayerScaffold(
-                        controller: _youtubeController,
-                        builder: (context, player) {
-                          return AspectRatio(
-                            aspectRatio: 16 / 9,
-                            child: player,
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-              ),
-
+            const SizedBox(height: 16.0),
+            _buildVideoTutorialSection(),
             _buildImageSection(),
             const SizedBox(height: 24.0),
             _buildApprovalButtons(),

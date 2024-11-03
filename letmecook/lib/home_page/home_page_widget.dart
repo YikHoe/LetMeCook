@@ -4,21 +4,22 @@ import '/flutter_flow/flutter_flow_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'admin_home_page_model.dart';
-export 'admin_home_page_model.dart';
+import 'home_page_model.dart';
+export 'home_page_model.dart';
 import 'package:letmecook/repositories/auth_repository.dart';
 import 'package:letmecook/repositories/recipe_repository.dart';
 import 'package:letmecook/repositories/user_repository.dart';
 
-class AdminHomePageWidget extends StatefulWidget {
-  const AdminHomePageWidget({super.key});
+class HomePageWidget extends StatefulWidget {
+  final Map<String, dynamic>? userData;
+  const HomePageWidget({super.key, required this.userData});
 
   @override
-  State<AdminHomePageWidget> createState() => _AdminHomePageWidgetState();
+  State<HomePageWidget> createState() => _HomePageWidgetState();
 }
 
-class _AdminHomePageWidgetState extends State<AdminHomePageWidget> {
-  late AdminHomePageModel _model;
+class _HomePageWidgetState extends State<HomePageWidget> {
+  late HomePageModel _model;
   final AuthRepository _authRepository = AuthRepository();
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final RecipeRepository _recipeRepository = RecipeRepository();
@@ -32,7 +33,7 @@ class _AdminHomePageWidgetState extends State<AdminHomePageWidget> {
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => AdminHomePageModel());
+    _model = createModel(context, () => HomePageModel());
     _approvedRecipes = _recipeRepository.getApprovedRecipesWithUsernames();
     savedRecipes = _userRepository.getSavedRecipes();
   }
@@ -52,6 +53,7 @@ class _AdminHomePageWidgetState extends State<AdminHomePageWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final userRole = widget.userData?['user_role'];
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -190,14 +192,14 @@ class _AdminHomePageWidgetState extends State<AdminHomePageWidget> {
                               return Center(child: CircularProgressIndicator());
                             }
                             if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                            return Expanded(
-                              child: Center(
-                                child: Text(
-                                  'No recipes available',
-                                  style: TextStyle(color: Colors.black),
+                              return Expanded(
+                                child: Center(
+                                  child: Text(
+                                    'No recipes available',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
                                 ),
-                              ),
-                            );
+                              );
                             }
 
                             return Column(
@@ -453,32 +455,64 @@ class _AdminHomePageWidgetState extends State<AdminHomePageWidget> {
                               style: TextStyle(color: Colors.black)),
                         ),
                       ),
-                      InkWell(
-                        onTap: () {
-                          context.pushNamed('upload_recipe_page');
-                        },
-                        child: Card(
-                          color: Colors.white,
-                          child: ListTile(
-                            leading: Icon(Icons.article, color: Colors.black),
-                            title: Text('Upload Recipe',
-                                style: TextStyle(color: Colors.black)),
+                      if (userRole == 'admin') ...[
+                        InkWell(
+                          onTap: () {
+                            context.pushNamed('upload_recipe_page');
+                          },
+                          child: Card(
+                            color: Colors.white,
+                            child: ListTile(
+                              leading: Icon(Icons.article, color: Colors.black),
+                              title: Text('Upload Recipe',
+                                  style: TextStyle(color: Colors.black)),
+                            ),
                           ),
                         ),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          context.pushNamed('pending_approval_recipe_page');
-                        },
-                        child: Card(
-                          color: Colors.white,
-                          child: ListTile(
-                            leading: Icon(Icons.pending, color: Colors.black),
-                            title: Text('View Pending Approval Recipes',
-                                style: TextStyle(color: Colors.black)),
+                        InkWell(
+                          onTap: () {
+                            context.pushNamed('pending_approval_recipe_page');
+                          },
+                          child: Card(
+                            color: Colors.white,
+                            child: ListTile(
+                              leading: Icon(Icons.pending, color: Colors.black),
+                              title: Text('View Pending Approval Recipes',
+                                  style: TextStyle(color: Colors.black)),
+                            ),
                           ),
                         ),
-                      ),
+                      ],
+                      if (userRole == 'verified_user') ...[
+                        InkWell(
+                          onTap: () {
+                            context.pushNamed('upload_recipe_page');
+                          },
+                          child: Card(
+                            color: Colors.white,
+                            child: ListTile(
+                              leading: Icon(Icons.article, color: Colors.black),
+                              title: Text('Upload Recipe',
+                                  style: TextStyle(color: Colors.black)),
+                            ),
+                          ),
+                        ),
+                      ],
+                      if (userRole == 'normal_user') ...[
+                        InkWell(
+                          onTap: () {
+                            context.pushNamed('apply_as_verified_user_page');
+                          },
+                          child: Card(
+                            color: Colors.white,
+                            child: ListTile(
+                              leading: Icon(Icons.article, color: Colors.black),
+                              title: Text('Apply As Verified User',
+                                  style: TextStyle(color: Colors.black)),
+                            ),
+                          ),
+                        ),
+                      ],
                       InkWell(
                         onTap: () {
                           // Use GoRouter to navigate to the login page when Logout is clicked

@@ -283,7 +283,7 @@ class _DisplayRecipePageWidgetState extends State<DisplayRecipePageWidget> {
                           onTap: () => _launchURL(
                               widget.recipeData['videoTutorialLink']),
                           child: Text(
-                            "Watch on YouTube",
+                            widget.recipeData['videoTutorialLink'],
                             style: TextStyle(
                               color: Colors.blue,
                               decoration: TextDecoration.underline,
