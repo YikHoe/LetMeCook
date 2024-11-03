@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:letmecook/display_recipe_page/display_recipe_page_widget.dart';
 import 'package:letmecook/pending_approval_recipe_page/pending_approval_recipe_page_widget.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
@@ -93,6 +94,19 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               return const Center(child: Text('No recipe data available'));
             }
             return DisplayPendingApprovalRecipePageWidget(
+              recipeData: recipeData,
+            );
+          },
+        ),
+        FFRoute(
+          name: 'display_recipe_page',
+          path: '/displayRecipePage/:id',
+          builder: (context, params) {
+            final recipeData = params.state.extra as Map<String, dynamic>?;
+            if (recipeData == null) {
+              return const Center(child: Text('No recipe data available'));
+            }
+            return DisplayRecipePageWidget(
               recipeData: recipeData,
             );
           },

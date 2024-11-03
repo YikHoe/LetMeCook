@@ -8,6 +8,7 @@ import 'admin_home_page_model.dart';
 export 'admin_home_page_model.dart';
 import 'package:letmecook/repositories/auth_repository.dart';
 import 'package:letmecook/repositories/recipe_repository.dart';
+import 'package:letmecook/repositories/user_repository.dart';
 
 class AdminHomePageWidget extends StatefulWidget {
   const AdminHomePageWidget({super.key});
@@ -21,7 +22,9 @@ class _AdminHomePageWidgetState extends State<AdminHomePageWidget> {
   final AuthRepository _authRepository = AuthRepository();
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final RecipeRepository _recipeRepository = RecipeRepository();
+  final UserRepository _userRepository = UserRepository();
   late Future<List<Map<String, dynamic>>> _approvedRecipes;
+  late Future<List<Map<String, dynamic>>> savedRecipes;
 
   // Add current page index
   int currentPageIndex = 0;
@@ -31,6 +34,7 @@ class _AdminHomePageWidgetState extends State<AdminHomePageWidget> {
     super.initState();
     _model = createModel(context, () => AdminHomePageModel());
     _approvedRecipes = _recipeRepository.getApprovedRecipesWithUsernames();
+    savedRecipes = _userRepository.getSavedRecipes();
   }
 
   @override
@@ -42,6 +46,7 @@ class _AdminHomePageWidgetState extends State<AdminHomePageWidget> {
   void _refreshRecipes() {
     setState(() {
       _approvedRecipes = _recipeRepository.getApprovedRecipesWithUsernames();
+      savedRecipes = _userRepository.getSavedRecipes();
     });
   }
 
@@ -95,8 +100,7 @@ class _AdminHomePageWidgetState extends State<AdminHomePageWidget> {
               child: <Widget>[
                 // Home Page Content
                 Padding(
-                  padding:
-                      EdgeInsetsDirectional.fromSTEB(24.0, 24.0, 24.0, 24.0),
+                  padding: EdgeInsetsDirectional.fromSTEB(24.0, 24.0, 24.0, 16),
                   child: SingleChildScrollView(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -128,7 +132,8 @@ class _AdminHomePageWidgetState extends State<AdminHomePageWidget> {
                                         child: TextField(
                                           controller: _model.searchController,
                                           decoration: InputDecoration(
-                                            hintText: 'Search by recipe name...',
+                                            hintText:
+                                                'Search by recipe name...',
                                             border: InputBorder.none,
                                             isDense: true,
                                             contentPadding:
@@ -185,119 +190,147 @@ class _AdminHomePageWidgetState extends State<AdminHomePageWidget> {
                               return Center(child: CircularProgressIndicator());
                             }
                             if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                              return Center(
-                                  child: Text('No recipes available'));
+                            return Expanded(
+                              child: Center(
+                                child: Text(
+                                  'No recipes available',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                              ),
+                            );
                             }
 
                             return Column(
                               children: snapshot.data!
                                   .map((recipe) {
-                                    return Material(
-                                      color: Colors.transparent,
-                                      elevation: 2.0,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(16.0),
-                                      ),
-                                      child: Container(
-                                        width:
-                                            MediaQuery.sizeOf(context).width *
-                                                1.0,
-                                        height: 200.0,
-                                        decoration: BoxDecoration(
-                                          color: FlutterFlowTheme.of(context)
-                                              .secondaryBackground,
+                                    return InkWell(
+                                      onTap: () async {
+                                        final result = await context.pushNamed(
+                                          'display_recipe_page',
+                                          pathParameters: {
+                                            'id':
+                                                recipe['id']?.toString() ?? '0',
+                                          },
+                                          extra: recipe,
+                                        );
+                                        if (result == true) {
+                                          _refreshRecipes(); // Refresh if returning from display_recipe_page
+                                        }
+                                      },
+                                      child: Material(
+                                        color: Colors.transparent,
+                                        elevation: 2.0,
+                                        shape: RoundedRectangleBorder(
                                           borderRadius:
                                               BorderRadius.circular(16.0),
                                         ),
-                                        child: Stack(
-                                          children: [
-                                            ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(16.0),
-                                              child: ClipRect(
-                                                child: Align(
-                                                  alignment: Alignment.center,
-                                                  child: Container(
-                                                    height: 250,
-                                                    child: Center(
-                                                      child: Image.network(
-                                                        recipe['image'],
-                                                        fit: BoxFit
-                                                            .contain, // Or use BoxFit.scaleDown if you prefer
-                                                        alignment:
-                                                            Alignment.center,
+                                        child: Container(
+                                          width:
+                                              MediaQuery.sizeOf(context).width *
+                                                  1.0,
+                                          height: 200.0,
+                                          decoration: BoxDecoration(
+                                            color: FlutterFlowTheme.of(context)
+                                                .secondaryBackground,
+                                            borderRadius:
+                                                BorderRadius.circular(16.0),
+                                          ),
+                                          child: Stack(
+                                            children: [
+                                              ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(16.0),
+                                                child: ClipRect(
+                                                  child: Align(
+                                                    alignment: Alignment.center,
+                                                    child: Container(
+                                                      height: 250,
+                                                      child: Center(
+                                                        child: Image.network(
+                                                          recipe['image'],
+                                                          fit: BoxFit.contain,
+                                                          alignment:
+                                                              Alignment.center,
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
                                                 ),
                                               ),
-                                            ),
-                                            Container(
-                                              width: MediaQuery.sizeOf(context)
-                                                      .width *
-                                                  1.0,
-                                              height: MediaQuery.sizeOf(context)
-                                                      .height *
-                                                  1.0,
-                                              decoration: BoxDecoration(
-                                                gradient: LinearGradient(
-                                                  colors: [
-                                                    Colors.transparent,
-                                                    Colors.black
-                                                  ],
-                                                  stops: [0.7, 1.0],
-                                                  begin: AlignmentDirectional(
-                                                      0.0, -1.0),
-                                                  end: AlignmentDirectional(
-                                                      0.0, 1.0),
+                                              Container(
+                                                width:
+                                                    MediaQuery.sizeOf(context)
+                                                            .width *
+                                                        1.0,
+                                                height:
+                                                    MediaQuery.sizeOf(context)
+                                                            .height *
+                                                        1.0,
+                                                decoration: BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                    colors: [
+                                                      Colors.transparent,
+                                                      Colors.black
+                                                    ],
+                                                    stops: [0.7, 1.0],
+                                                    begin: AlignmentDirectional(
+                                                        0.0, -1.0),
+                                                    end: AlignmentDirectional(
+                                                        0.0, 1.0),
+                                                  ),
+                                                ),
+                                                child: Padding(
+                                                  padding: EdgeInsetsDirectional
+                                                      .fromSTEB(16.0, 16.0,
+                                                          16.0, 16.0),
+                                                  child: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.end,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        recipe['recipeTitle'] ??
+                                                            'Untitled Recipe',
+                                                        style: FlutterFlowTheme
+                                                                .of(context)
+                                                            .titleMedium
+                                                            .override(
+                                                              fontFamily:
+                                                                  'Inter Tight',
+                                                              color:
+                                                                  Colors.white,
+                                                              letterSpacing:
+                                                                  0.0,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
+                                                            ),
+                                                      ),
+                                                      Text(
+                                                        'Uploaded by ${recipe['username']}',
+                                                        style:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .bodySmall
+                                                                .override(
+                                                                  fontFamily:
+                                                                      'Inter Tight',
+                                                                  color: Colors
+                                                                      .white70,
+                                                                  letterSpacing:
+                                                                      0.0,
+                                                                ),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
-                                              child: Padding(
-                                                padding: EdgeInsetsDirectional
-                                                    .fromSTEB(
-                                                        16.0, 16.0, 16.0, 16.0),
-                                                child: Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.end,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      recipe['recipeTitle'] ??
-                                                          'Untitled Recipe',
-                                                      style: FlutterFlowTheme
-                                                              .of(context)
-                                                          .titleMedium
-                                                          .override(
-                                                            fontFamily:
-                                                                'Inter Tight',
-                                                            color: Colors.white,
-                                                            letterSpacing: 0.0,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                          ),
-                                                    ),
-                                                    Text(
-                                                      'by ${recipe['username']}',
-                                                      style: FlutterFlowTheme
-                                                              .of(context)
-                                                          .bodySmall
-                                                          .override(
-                                                            fontFamily:
-                                                                'Inter Tight',
-                                                            color:
-                                                                Colors.white70,
-                                                            letterSpacing: 0.0,
-                                                          ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     );
@@ -319,11 +352,10 @@ class _AdminHomePageWidgetState extends State<AdminHomePageWidget> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Padding(
-                        // Add padding here
-                        padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0,
-                            16.0, 16), // Adjust padding values as needed
+                        padding: const EdgeInsetsDirectional.fromSTEB(
+                            16.0, 0, 16.0, 16),
                         child: Text(
-                          'My List',
+                          'My Saved Recipes',
                           style: FlutterFlowTheme.of(context)
                               .headlineSmall
                               .override(
@@ -334,22 +366,71 @@ class _AdminHomePageWidgetState extends State<AdminHomePageWidget> {
                               ),
                         ),
                       ),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: 5,
-                        itemBuilder: (context, index) {
-                          return Card(
-                            color: Colors.white,
-                            child: ListTile(
-                              title: Text('Recipe ${index + 1}',
-                                  style: TextStyle(color: Colors.black)),
-                              leading: Icon(
-                                Icons.restaurant_menu,
-                                color: Colors.black,
+                      FutureBuilder<List<Map<String, dynamic>>>(
+                        future: savedRecipes,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(child: CircularProgressIndicator());
+                          } else if (snapshot.hasError) {
+                            return Expanded(
+                              child: Center(
+                                child: Text(
+                                  'Error loading saved recipes',
+                                  style: TextStyle(color: Colors.black),
+                                ),
                               ),
-                              subtitle: Text('Recipe description goes here',
-                                  style: TextStyle(color: Colors.black)),
-                            ),
+                            );
+                          } else if (!snapshot.hasData ||
+                              snapshot.data!.isEmpty) {
+                            return Expanded(
+                              child: Center(
+                                child: Text(
+                                  'No saved recipes found',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                              ),
+                            );
+                          }
+
+                          final savedRecipes = snapshot.data!;
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: savedRecipes.length,
+                            itemBuilder: (context, index) {
+                              final recipe = savedRecipes[index];
+                              return Card(
+                                color: Colors.white,
+                                child: InkWell(
+                                  onTap: () async {
+                                    final result = await context.pushNamed(
+                                      'display_recipe_page',
+                                      pathParameters: {
+                                        'id': recipe['id']?.toString() ?? '0',
+                                      },
+                                      extra: recipe,
+                                    );
+                                    if (result == true) {
+                                      _refreshRecipes(); // Refresh if returning from display_recipe_page
+                                    }
+                                  },
+                                  child: ListTile(
+                                    title: Text(
+                                      recipe['recipeTitle'],
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                    leading: Icon(
+                                      Icons.restaurant_menu,
+                                      color: Colors.black,
+                                    ),
+                                    subtitle: Text(
+                                      'Uploaded by ${recipe['uploadedBy']}',
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
                           );
                         },
                       ),
@@ -419,121 +500,59 @@ class _AdminHomePageWidgetState extends State<AdminHomePageWidget> {
               ][currentPageIndex],
             ),
 
-            // Bottom Navigation Bar
-            Material(
-              color: Colors.transparent,
-              elevation: 4.0,
+// Bottom Navigation Bar
+            SafeArea(
               child: Container(
-                width: MediaQuery.sizeOf(context).width * 1.0,
-                height: 80.0,
                 decoration: BoxDecoration(
                   color: Colors.white,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          currentPageIndex = 0;
-                          _refreshRecipes(); // Trigger a refresh if already on homepage
-                        });
-                      },
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.home,
-                            color: currentPageIndex == 0
-                                ? Color(0xFFE59368)
-                                : FlutterFlowTheme.of(context).secondaryText,
-                            size: 28.0,
-                          ),
-                          Text(
-                            'Home',
-                            style:
-                                FlutterFlowTheme.of(context).bodySmall.override(
-                                      fontFamily: 'Inter',
-                                      color: currentPageIndex == 0
-                                          ? Color(0xFFE59368)
-                                          : FlutterFlowTheme.of(context)
-                                              .secondaryText,
-                                      letterSpacing: 0.0,
-                                    ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          currentPageIndex = 1;
-                        });
-                      },
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.list,
-                            color: currentPageIndex == 1
-                                ? Color(0xFFE59368)
-                                : FlutterFlowTheme.of(context).secondaryText,
-                            size: 28.0,
-                          ),
-                          Text(
-                            'List',
-                            style:
-                                FlutterFlowTheme.of(context).bodySmall.override(
-                                      fontFamily: 'Inter',
-                                      color: currentPageIndex == 1
-                                          ? Color(0xFFE59368)
-                                          : FlutterFlowTheme.of(context)
-                                              .secondaryText,
-                                      letterSpacing: 0.0,
-                                    ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          currentPageIndex = 2;
-                        });
-                      },
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.person_outline,
-                            color: currentPageIndex == 2
-                                ? Color(0xFFE59368)
-                                : FlutterFlowTheme.of(context).secondaryText,
-                            size: 28.0,
-                          ),
-                          Text(
-                            'Me',
-                            style:
-                                FlutterFlowTheme.of(context).bodySmall.override(
-                                      fontFamily: 'Inter',
-                                      color: currentPageIndex == 2
-                                          ? Color(0xFFE59368)
-                                          : FlutterFlowTheme.of(context)
-                                              .secondaryText,
-                                      letterSpacing: 0.0,
-                                    ),
-                          ),
-                        ],
-                      ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 4,
+                      offset: Offset(0, -1),
                     ),
                   ],
                 ),
+                child: SizedBox(
+                  height:
+                      56, // Fixed height that matches kBottomNavigationBarHeight
+                  child: BottomNavigationBar(
+                    currentIndex: currentPageIndex,
+                    onTap: (index) {
+                      setState(() {
+                        currentPageIndex = index;
+                        if (index == 0 || index == 1) {
+                          _refreshRecipes();
+                        }
+                      });
+                    },
+                    backgroundColor: Colors.white,
+                    type: BottomNavigationBarType.fixed,
+                    selectedItemColor: Color(0xFFE59368),
+                    unselectedItemColor:
+                        FlutterFlowTheme.of(context).secondaryText,
+                    selectedFontSize: 12,
+                    unselectedFontSize: 12,
+                    iconSize: 24, // Slightly reduced icon size
+                    elevation: 0,
+                    items: const [
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.home),
+                        label: 'Home',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.list),
+                        label: 'List',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.person_outline),
+                        label: 'Me',
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
+            )
           ],
         ),
       ),
