@@ -66,6 +66,16 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           },
         ),
         FFRoute(
+          name: 'view_uploaded_recipe_page',
+          path: '/viewUploadedRecipePage/:uid',
+          builder: (context, params) {
+            final userData = params.state.extra as Map<String, dynamic>?;
+            return ViewUploadedRecipePageWidget(
+              userData: userData,
+            );
+          },
+        ),
+        FFRoute(
           name: 'apply_as_verified_user_page',
           path: '/applyAsVerifiedUserPage',
           builder: (context, params) => ApplyAsVerifiedUserPageWidget(),
