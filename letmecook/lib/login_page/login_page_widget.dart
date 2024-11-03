@@ -37,9 +37,9 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
   }
 
   void clearForm() {
-  // Reset any form fields, controllers, or variables here.
-  _model.textController1?.clear(); 
-  _model.textController2?.clear(); 
+    // Reset any form fields, controllers, or variables here.
+    _model.textController1?.clear();
+    _model.textController2?.clear();
   }
 
   @override
@@ -65,23 +65,28 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
     setState(() => _isLoading = true);
 
     // Call signInWithEmail in AuthRepository and handle the response
-    final String? result = await _authRepository.signInWithEmail(email, password);
+    final Map<String, dynamic>? userData =
+        await _authRepository.signInWithEmail(email, password);
 
     setState(() => _isLoading = false);
 
-  if (result == 'normal_user') {
-    clearForm();
-    context.pushNamed('normal_user_home_page');
-  } else if (result == 'verified_user') {
-    clearForm();
-    context.pushNamed('verified_user_home_page');
-  } else if (result == 'admin') {
-    clearForm();
-    context.pushNamed('admin_home_page');
-  } else {
-    // Show the error message from signInWithEmail if it’s not a role
-    _showSnackBar(result ?? 'Login failed, please try again.');
-  }
+    if (userData != null) {
+      if (userData.containsKey('error')) {
+        // Display error message if login fails
+        _showSnackBar(userData['error']);
+      } else {
+        clearForm();
+        context.pushNamed(
+          'home_page',
+          pathParameters: {
+            'uid': userData['uid'].toString(),
+          },
+          extra: userData,
+        );
+      }
+    } else {
+      _showSnackBar('Login failed, please try again.');
+    }
   }
 
   // Helper function to show snackbar messages

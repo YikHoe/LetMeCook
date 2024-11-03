@@ -44,9 +44,7 @@ class AuthRepository {
 
         await userCollection.doc(user.uid).set(newUser.toJson());
 
-              await userCollection
-          .doc(user.uid)
-          .collection('savedRecipes');
+        await userCollection.doc(user.uid).collection('savedRecipes');
       }
 
       return null; // Return null if the sign-up was successful
@@ -64,7 +62,8 @@ class AuthRepository {
   }
 
   // Sign in with email and password, including validation and Firestore role check
-  Future<String?> signInWithEmail(String email, String password) async {
+  Future<Map<String, dynamic>?> signInWithEmail(
+      String email, String password) async {
     try {
       // Firebase Auth sign-in
       final auth.UserCredential userCredential =
@@ -75,19 +74,25 @@ class AuthRepository {
 
       final auth.User? user = userCredential.user;
       if (user != null) {
-        // Retrieve user role from Firestore
+        // Retrieve user document from Firestore
         DocumentSnapshot userDoc =
             await _firestore.collection('users').doc(user.uid).get();
-        String userRole = userDoc.get('user_role');
 
-        // Return the user role for routing purposes
-        return userRole;
+        // Check if the document exists and return the data
+        if (userDoc.exists) {
+          Map<String, dynamic> userData =
+              userDoc.data() as Map<String, dynamic>;
+          userData['uid'] = user.uid; // Add the uid to the map
+
+          // Return both uid and user data
+          return userData;
+        }
       }
-      return null; // Return null if user or role is not found
+      return null; // Return null if user or document is not found
     } on auth.FirebaseAuthException catch (e) {
-      return 'Incorrect email or password, please try again.';
+      return {'error': 'Incorrect email or password, please try again.'};
     } catch (e) {
-      return 'An unexpected error occurred, please try again.';
+      return {'error': 'An unexpected error occurred, please try again.'};
     }
   }
 

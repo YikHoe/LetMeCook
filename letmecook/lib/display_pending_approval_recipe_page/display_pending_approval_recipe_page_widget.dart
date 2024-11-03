@@ -16,6 +16,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DisplayPendingApprovalRecipePageWidget extends StatefulWidget {
   final Map<String, dynamic> recipeData;
@@ -36,6 +37,7 @@ class _DisplayPendingApprovalRecipePageWidgetState
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final RecipeRepository recipeRepository = RecipeRepository();
   late YoutubePlayerController _youtubeController;
+  bool isDesktop = false;
 
   @override
   void initState() {
@@ -43,9 +45,13 @@ class _DisplayPendingApprovalRecipePageWidgetState
     _model =
         createModel(context, () => DisplayPendingApprovalRecipePageModel());
 
-    // Initialize YouTube controller if video link exists
+    // Determine if the app is running on a desktop platform
+    isDesktop =
+        !kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
+
+    // Initialize YouTube controller if video link exists and not on desktop
     String videoUrl = widget.recipeData['videoTutorialLink'] ?? '';
-    if (videoUrl.isNotEmpty) {
+    if (videoUrl.isNotEmpty && !isDesktop) {
       String videoId = YoutubePlayerController.convertUrlToId(videoUrl) ?? '';
       _youtubeController = YoutubePlayerController.fromVideoId(
         videoId: videoId,
@@ -60,12 +66,25 @@ class _DisplayPendingApprovalRecipePageWidgetState
   @override
   void dispose() {
     _model.dispose();
+    if (!isDesktop) {
+      _youtubeController.close();
+    }
     super.dispose();
   }
 
-  // Helper widget to display each field as non-editable
+  // Helper to launch a URL in the default browser
+  Future<void> _launchURL(String url) async {
+    final Uri uri = Uri.parse(url); // Parse the string URL to a Uri object
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+// Helper widget to display each field as non-editable and clickable
   Widget _buildReadOnlyField(String label, String value,
-      {bool isCopyable = false}) {
+      {bool isCopyable = false, bool isClickable = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -76,14 +95,19 @@ class _DisplayPendingApprovalRecipePageWidgetState
         ),
         const SizedBox(height: 8),
         GestureDetector(
-          onTap: isCopyable
+          onTap: isClickable
               ? () async {
-                  await Clipboard.setData(ClipboardData(text: value));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Link copied to clipboard!')),
-                  );
+                  _launchURL(value); // Launch the URL when clicked
                 }
-              : null,
+              : isCopyable
+                  ? () async {
+                      await Clipboard.setData(ClipboardData(text: value));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Link copied to clipboard!')),
+                      );
+                    }
+                  : null,
           child: Container(
             width: double.infinity,
             padding: const EdgeInsets.all(12.0),
@@ -94,7 +118,15 @@ class _DisplayPendingApprovalRecipePageWidgetState
             ),
             child: Text(
               value,
-              style: const TextStyle(fontSize: 16, color: Colors.black),
+              style: TextStyle(
+                fontSize: 16,
+                color: isClickable
+                    ? Colors.blue
+                    : Colors.black, // Blue if clickable
+                decoration: isClickable
+                    ? TextDecoration.underline
+                    : TextDecoration.none, // Underline only if clickable
+              ),
             ),
           ),
         ),
@@ -249,6 +281,63 @@ class _DisplayPendingApprovalRecipePageWidgetState
     }
   }
 
+  bool _isDesktop() {
+    return !kIsWeb &&
+        (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
+  }
+
+  // Widget for displaying the video tutorial link or embedded video
+  Widget _buildVideoTutorialSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _isDesktop()
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Non-editable text field with clickable link
+                  _buildReadOnlyField(
+                    "Video Tutorial Link",
+                    widget.recipeData['videoTutorialLink'],
+                    isClickable: true, // Makes the link clickable
+                  ),
+                ],
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Display "Video Tutorial" text only for non-desktop platforms
+                  const Text(
+                    "Video Tutorial",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 200, // Set fixed height
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10.0),
+                      child: YoutubePlayerScaffold(
+                        controller: _youtubeController,
+                        builder: (context, player) {
+                          return AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: player,
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.recipeData == null) {
@@ -323,40 +412,7 @@ class _DisplayPendingApprovalRecipePageWidgetState
             _buildReadOnlyField(
                 "Difficulty", widget.recipeData['difficulty'] ?? ''),
             const SizedBox(height: 16.0),
-            // YouTube Video Tutorial
-            if (_youtubeController != null)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Youtube Video Tutorial",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    height: 200, // Set fixed height
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                          10.0), // Optional rounded corners
-                      child: YoutubePlayerScaffold(
-                        controller: _youtubeController,
-                        builder: (context, player) {
-                          return AspectRatio(
-                            aspectRatio: 16 / 9,
-                            child: player,
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-              ),
-            //const SizedBox(height: 16.0),
+            _buildVideoTutorialSection(),
             _buildImageSection(),
             const SizedBox(height: 24.0),
             _buildApprovalButtons(),

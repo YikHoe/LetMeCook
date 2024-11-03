@@ -56,19 +56,24 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => LoginPageWidget(),
         ),
         FFRoute(
-          name: 'normal_user_home_page',
-          path: '/normalUserHomePage',
-          builder: (context, params) => NormalUserHomePageWidget(),
+          name: 'home_page',
+          path: '/homePage/:uid',
+          builder: (context, params) {
+            final userData = params.state.extra as Map<String, dynamic>?;
+            return HomePageWidget(
+              userData: userData,
+            );
+          },
         ),
         FFRoute(
-          name: 'verified_user_home_page',
-          path: '/verifiedUserHomePage',
-          builder: (context, params) => VerifiedUserHomePageWidget(),
-        ),
-        FFRoute(
-          name: 'admin_home_page',
-          path: '/adminHomePage',
-          builder: (context, params) => AdminHomePageWidget(),
+          name: 'view_uploaded_recipe_page',
+          path: '/viewUploadedRecipePage/:uid',
+          builder: (context, params) {
+            final userData = params.state.extra as Map<String, dynamic>?;
+            return ViewUploadedRecipePageWidget(
+              userData: userData,
+            );
+          },
         ),
         FFRoute(
           name: 'apply_as_verified_user_page',

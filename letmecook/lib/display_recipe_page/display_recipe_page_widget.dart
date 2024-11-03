@@ -16,6 +16,7 @@ import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:url_launcher/url_launcher.dart';
 
 class DisplayRecipePageWidget extends StatefulWidget {
   final Map<String, dynamic> recipeData;
@@ -39,15 +40,20 @@ class _DisplayRecipePageWidgetState extends State<DisplayRecipePageWidget> {
 
   // Track if the recipe is saved
   bool isSaved = false;
+  bool isDesktop = false;
 
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => DisplayRecipePageModel());
 
-    // Initialize YouTube controller if video link exists
+    // Determine if the app is running on a desktop platform
+    isDesktop =
+        !kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
+
+    // Initialize YouTube controller if video link exists and not on desktop
     String videoUrl = widget.recipeData['videoTutorialLink'] ?? '';
-    if (videoUrl.isNotEmpty) {
+    if (videoUrl.isNotEmpty && !isDesktop) {
       String videoId = YoutubePlayerController.convertUrlToId(videoUrl) ?? '';
       _youtubeController = YoutubePlayerController.fromVideoId(
         videoId: videoId,
@@ -84,10 +90,22 @@ class _DisplayRecipePageWidgetState extends State<DisplayRecipePageWidget> {
     );
   }
 
+// Helper to launch a URL in the default browser
+  Future<void> _launchURL(String url) async {
+    final Uri uri = Uri.parse(url); // Parse the string URL to a Uri object
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   void dispose() {
     _model.dispose();
-    _youtubeController.close();
+    if (!isDesktop) {
+      _youtubeController.close();
+    }
     super.dispose();
   }
 
@@ -246,7 +264,8 @@ class _DisplayRecipePageWidgetState extends State<DisplayRecipePageWidget> {
             _buildInfo("Instructions", widget.recipeData['instructions'] ?? ''),
 
             // YouTube Video Tutorial
-            if (_youtubeController != null)
+            // Display video section differently based on platform
+            if (widget.recipeData['videoTutorialLink'] != null)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -259,22 +278,33 @@ class _DisplayRecipePageWidgetState extends State<DisplayRecipePageWidget> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  SizedBox(
-                    height: 200, // Set fixed height
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                          10.0), // Optional rounded corners
-                      child: YoutubePlayerScaffold(
-                        controller: _youtubeController,
-                        builder: (context, player) {
-                          return AspectRatio(
-                            aspectRatio: 16 / 9,
-                            child: player,
-                          );
-                        },
-                      ),
-                    ),
-                  ),
+                  isDesktop
+                      ? InkWell(
+                          onTap: () => _launchURL(
+                              widget.recipeData['videoTutorialLink']),
+                          child: Text(
+                            widget.recipeData['videoTutorialLink'],
+                            style: TextStyle(
+                              color: Colors.blue,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        )
+                      : SizedBox(
+                          height: 200, // Set fixed height
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10.0),
+                            child: YoutubePlayerScaffold(
+                              controller: _youtubeController,
+                              builder: (context, player) {
+                                return AspectRatio(
+                                  aspectRatio: 16 / 9,
+                                  child: player,
+                                );
+                              },
+                            ),
+                          ),
+                        ),
                   const SizedBox(height: 16),
                 ],
               ),
