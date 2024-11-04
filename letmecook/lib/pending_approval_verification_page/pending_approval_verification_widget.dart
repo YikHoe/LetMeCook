@@ -23,14 +23,13 @@ class PendingApprovalApplicationsWidget extends StatefulWidget {
 }
 
 class _PendingApprovalApplicationsWidget extends State<PendingApprovalApplicationsWidget> {
-  late Future<List<Map<String, dynamic>>> _applicationsRepo;
+  final ApplicationsRepository _applicationRepo = ApplicationsRepository();
   late PendingApprovalApplicationsModel _model;
 
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => PendingApprovalApplicationsModel());
-    _applicationsRepo = ApplicationsRepository().getAllPending();
   }
 
   @override
@@ -74,7 +73,7 @@ class _PendingApprovalApplicationsWidget extends State<PendingApprovalApplicatio
         color: Color(0xFFF1F4F8),
         padding: EdgeInsets.all(24.0),
         child: FutureBuilder(
-          future: _applicationsRepo,
+          future: _applicationRepo.getAllPending(),
           builder:
               (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
             // Check if the snapshot is still loading
@@ -101,7 +100,7 @@ class _PendingApprovalApplicationsWidget extends State<PendingApprovalApplicatio
                   onTap: () {
                     context.pushNamed(
                       'display_pending_approval_verification',
-                      pathParameters: {'id': application['id']?.toString() ?? '0'},
+                      pathParameters: {'id': application['id']},
                       extra: application,
                     );
                   },
@@ -117,7 +116,7 @@ class _PendingApprovalApplicationsWidget extends State<PendingApprovalApplicatio
                         color: Colors.black,
                       ),
                       subtitle: Text(
-                        'Years of Experience ${application['yearsOfExp']}',
+                        'Years of Experience: ${application['yearsOfExp']}',
                         style: TextStyle(color: Colors.black),
                       ),
                     ),

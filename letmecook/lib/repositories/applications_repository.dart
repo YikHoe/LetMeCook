@@ -14,12 +14,7 @@ class ApplicationsRepository {
   final FirebaseStorage _firebaseStorage = FirebaseStorage.instance;
 
   // save and store application submitted by user
-  Future<Map<String, dynamic>> addApplication(
-    String fullname,
-    int age,
-    String occupation,
-    int yearsOfExp,
-  ) async {
+  Future<Map<String, dynamic>> addApplication(String fullname, int age, String occupation, int yearsOfExp,) async {
     Map<String, dynamic> returnMessage = {};
     try {
       // Get current user
@@ -125,6 +120,7 @@ class ApplicationsRepository {
     }
   }
 
+  // Get all applications under pending status
   Future<List<Map<String, dynamic>>> getAllPending() async {
     List<Map<String, dynamic>> pendingApplications = [];
 
@@ -150,5 +146,56 @@ class ApplicationsRepository {
     } catch (e) {
       return pendingApplications;
     }
+  }
+
+  Future<Map<String, dynamic>> updateStatus(String appID, int type, [String reason = ""]) async {
+    Map<String, dynamic> message = {};
+
+    if (type == 1) {
+      try {
+        await _firestore
+          .collection('applications')
+          .doc(appID)
+          .update({
+            'status': 'APPROVED',
+          });
+
+        DocumentSnapshot doc = await _firestore
+          .collection('applications')
+          .doc(appID)
+          .get();
+
+        String userID = doc['userid'];
+
+        await _firestore
+          .collection('users')
+          .doc(userID)
+          .update({'user_role': 'verified_user'});
+
+        message['status'] = 200;
+        message['message'] = 'User role has been updated successfully';
+      } catch (e) {
+        message['status'] = 500;
+        message['message'] = 'Unexpected error has occurred!';
+      }
+
+    } else {
+      try {
+        await _firestore
+            .collection('applications')
+            .doc(appID)
+            .update({
+          'status': 'REJECTED',
+          'reason': reason,
+        });
+
+        message['status'] = 200;
+        message['message'] = 'Application has been rejected';
+      } catch (e) {
+        message['status'] = 500;
+        message['message'] = 'Unexpected error has occurred!';
+      }
+    }
+    return message;
   }
 }

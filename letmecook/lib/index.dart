@@ -9,7 +9,11 @@ export '/upload_recipe_page/upload_recipe_page_widget.dart'
     show UploadRecipePageWidget;
 export '/pending_approval_recipe_page/pending_approval_recipe_page_widget.dart'
     show PendingApprovalRecipePageWidget;
+export '/pending_approval_verification_page/pending_approval_verification_widget.dart'
+    show PendingApprovalApplicationsWidget;
 export '/display_pending_approval_recipe_page/display_pending_approval_recipe_page_widget.dart'
     show DisplayPendingApprovalRecipePageWidget;
+export '/display_pending_approval_application_page/display_pending_approval_application_widget.dart'
+    show DisplayPendingApprovalApplicationWidget;
 export '/display_recipe_page/display_recipe_page_widget.dart'
     show DisplayRecipePageWidget;
