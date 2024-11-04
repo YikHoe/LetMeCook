@@ -89,12 +89,18 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
             name: 'modify_recipe_page',
             path: '/modifyRecipePage/:id',
             builder: (context, params) {
-              final recipeData = params.state.extra as Map<String, dynamic>?;
-              if (recipeData == null) {
-                return const Center(child: Text('No recipe data available'));
+              final extraData = params.state.extra as Map<String, dynamic>?;
+              final recipeData =
+                  extraData?['recipeData'] as Map<String, dynamic>?;
+              final userData = extraData?['userData'] as Map<String, dynamic>?;
+
+              if (recipeData == null || userData == null) {
+                return const Center(
+                    child: Text('No recipe or user data available'));
               }
               return ModifyRecipePageWidget(
                 recipeData: recipeData,
+                userData: userData,
               );
             }),
         FFRoute(

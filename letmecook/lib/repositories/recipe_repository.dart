@@ -275,22 +275,28 @@ class RecipeRepository {
   }
 
   Future<String?> updateRecipe(
-    String recipeId,
-    String recipeTitle,
-    String description,
-    String ingredients,
-    String instructions,
-    int cookingTime,
-    String difficulty,
-    String videoTutorialLink, {
-    Uint8List? imageBytes,
-    XFile? imageFile,
-  }) async {
+      String recipeId,
+      String recipeTitle,
+      String description,
+      String ingredients,
+      String instructions,
+      int cookingTime,
+      String difficulty,
+      String videoTutorialLink,
+      {Uint8List? imageBytes,
+      XFile? imageFile,
+      Map<String, dynamic>? userData}) async {
     try {
       String? imageUrl;
       final currentUser = _firebaseAuth.currentUser;
       if (currentUser == null) {
         return 'User is not authenticated';
+      }
+
+      String userRole = userData?['user_role'];
+      int status = 0;
+      if (userRole == "admin") {
+        status = 1;
       }
 
       final String imagePath = 'recipe_images/${currentUser.uid}/$recipeId.jpg';
@@ -316,7 +322,7 @@ class RecipeRepository {
         'cookingTime': cookingTime,
         'difficulty': difficulty,
         'videoTutorialLink': videoTutorialLink,
-        'status': 0 // Reset status to pending
+        'status': status // Reset status to pending
       };
 
       // Only include 'image' if a new image URL was generated

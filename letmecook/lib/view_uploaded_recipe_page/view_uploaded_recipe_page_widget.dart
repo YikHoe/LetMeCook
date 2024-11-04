@@ -144,7 +144,10 @@ class _ViewUploadedRecipePageWidgetState
                   await context.pushNamed(
                     'modify_recipe_page',
                     pathParameters: {'id': recipe['id']?.toString() ?? '0'},
-                    extra: recipe,
+                    extra: {
+                      'recipeData': recipe,
+                      'userData': widget.userData,
+                    },
                   );
                   _fetchData();
                 },

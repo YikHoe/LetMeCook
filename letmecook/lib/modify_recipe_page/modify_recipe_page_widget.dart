@@ -15,8 +15,10 @@ import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 class ModifyRecipePageWidget extends StatefulWidget {
+  final Map<String, dynamic>? userData;
   final Map<String, dynamic> recipeData;
-  const ModifyRecipePageWidget({super.key, required this.recipeData});
+  const ModifyRecipePageWidget(
+      {super.key, required this.recipeData, required this.userData});
 
   @override
   State<ModifyRecipePageWidget> createState() => _ModifyRecipePageWidgetState();
@@ -71,18 +73,23 @@ class _ModifyRecipePageWidgetState extends State<ModifyRecipePageWidget> {
   }
 
   Future<void> _editRecipe() async {
-    String dialogTitle = 'Edit Recipe';
+    String dialogTitle = 'Update Recipe';
     String dialogContent;
 
     int status = widget.recipeData['status'] ?? 0;
+    String userRole = widget.userData?["user_role"];
     if (status == 1) {
-      dialogContent =
-          'This recipe is currently approved. Editing it will reset its status to "Pending" for re-verification. Do you want to proceed?';
+      if (userRole == "admin") {
+        dialogContent = 'Are you sure you want to update this recipe?';
+      } else {
+        dialogContent =
+            'This recipe is currently approved. Updating it will reset its status to "Pending" for re-verification. Do you want to proceed?';
+      }
     } else if (status == -1) {
       dialogContent =
           'This recipe was previously rejected. Are you sure you want to resubmit?';
     } else {
-      dialogContent = 'Are you sure you want to edit this recipe?';
+      dialogContent = 'Are you sure you want to update this recipe?';
     }
 
     bool confirmed = await _showConfirmationDialog(dialogTitle, dialogContent);
@@ -169,6 +176,7 @@ class _ModifyRecipePageWidgetState extends State<ModifyRecipePageWidget> {
       _model.videoTutorialLinkController.text,
       imageBytes: _imageBytes,
       imageFile: _imageFile,
+      userData: widget.userData,
     );
 
     if (result == null) {
@@ -240,12 +248,13 @@ class _ModifyRecipePageWidgetState extends State<ModifyRecipePageWidget> {
       );
     } else if (widget.recipeData['image'] != null) {
       // Display original image from database
-            return ClipRect(
+      return ClipRect(
         child: Align(
           alignment: Alignment.center, // Aligns the image in the center
           widthFactor: 1.0, // Take full width of the container
           heightFactor: 1.0, // Take full height of the container
-          child: Image.network(widget.recipeData['image'],
+          child: Image.network(
+            widget.recipeData['image'],
             fit: BoxFit.cover, // Maintain aspect ratio
           ),
         ),
@@ -498,7 +507,7 @@ class _ModifyRecipePageWidgetState extends State<ModifyRecipePageWidget> {
                   SizedBox(width: 16.0),
                   ElevatedButton(
                     onPressed: _editRecipe,
-                    child: Text('Edit'),
+                    child: Text('Update'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFE59368),
                       padding: EdgeInsets.symmetric(horizontal: 24.0),
