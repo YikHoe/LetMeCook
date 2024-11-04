@@ -287,33 +287,53 @@ class RecipeRepository {
       XFile? imageFile,
       Map<String, dynamic>? userData}) async {
     try {
-      String? imageUrl;
       final currentUser = _firebaseAuth.currentUser;
       if (currentUser == null) {
         return 'User is not authenticated';
       }
 
-      String userRole = userData?['user_role'];
-      int status = 0;
-      if (userRole == "admin") {
-        status = 1;
+      // Fetch the existing recipe document to retrieve the original image URL
+      DocumentSnapshot recipeDoc =
+          await _firestore.collection('recipes').doc(recipeId).get();
+      if (!recipeDoc.exists) {
+        return 'Recipe not found.';
       }
+      String? originalImageUrl = recipeDoc['image'] as String?;
+      String? imageUrl;
 
+      // Determine new status based on user role
+      String userRole = userData?['user_role'] ?? 'user';
+      int status = userRole == "admin" ? 1 : 0;
+
+      // Define the image path for the new image (if provided)
       final String imagePath = 'recipe_images/${currentUser.uid}/$recipeId.jpg';
 
-      // Upload new image if provided
-      if (imageBytes != null) {
-        final uploadTask = await _firebaseStorage
-            .ref(imagePath)
-            .putData(imageBytes, SettableMetadata(contentType: 'image/jpeg'));
-        imageUrl = await uploadTask.ref.getDownloadURL();
-      } else if (imageFile != null) {
-        final uploadTask = await _firebaseStorage.ref(imagePath).putFile(
-            File(imageFile.path), SettableMetadata(contentType: 'image/jpeg'));
-        imageUrl = await uploadTask.ref.getDownloadURL();
+      // Check if a new image is provided
+      if (imageBytes != null || imageFile != null) {
+        // If there is an existing image URL, delete the old image from Firebase Storage
+        if (originalImageUrl != null && originalImageUrl.isNotEmpty) {
+          final storageRef = _firebaseStorage.refFromURL(originalImageUrl);
+          await storageRef.delete();
+        }
+
+        // Upload the new image to Firebase Storage
+        if (imageBytes != null) {
+          final uploadTask = await _firebaseStorage
+              .ref(imagePath)
+              .putData(imageBytes, SettableMetadata(contentType: 'image/jpeg'));
+          imageUrl = await uploadTask.ref.getDownloadURL();
+        } else if (imageFile != null) {
+          final uploadTask = await _firebaseStorage.ref(imagePath).putFile(
+              File(imageFile.path),
+              SettableMetadata(contentType: 'image/jpeg'));
+          imageUrl = await uploadTask.ref.getDownloadURL();
+        }
+      } else {
+        // Use the existing image URL if no new image is provided
+        imageUrl = originalImageUrl;
       }
 
-      // Create a map of fields to update
+      // Prepare data to update
       Map<String, dynamic> updateData = {
         'recipeTitle': recipeTitle,
         'description': description,
@@ -322,15 +342,12 @@ class RecipeRepository {
         'cookingTime': cookingTime,
         'difficulty': difficulty,
         'videoTutorialLink': videoTutorialLink,
-        'status': status // Reset status to pending
+        'status': status, // Reset status to reflect the new changes
+        'image':
+            imageUrl, // Update with new image URL if a new image was provided
       };
 
-      // Only include 'image' if a new image URL was generated
-      if (imageUrl != null) {
-        updateData['image'] = imageUrl;
-      }
-
-      // Update the recipe in Firestore
+      // Update the recipe document in Firestore
       await _firestore.collection('recipes').doc(recipeId).update(updateData);
       return null; // Success
     } catch (e) {
@@ -340,6 +357,18 @@ class RecipeRepository {
 
   Future<String?> deleteRecipe(String recipeId) async {
     try {
+      DocumentSnapshot recipeDoc =
+          await _firestore.collection('recipes').doc(recipeId).get();
+      if (!recipeDoc.exists) {
+        return 'Recipe not found.';
+      }
+
+      String? imageUrl = recipeDoc['image'] as String?;
+      if (imageUrl != null && imageUrl.isNotEmpty) {
+        final storageRef = _firebaseStorage.refFromURL(imageUrl);
+        await storageRef.delete();
+      }
+
       // Delete the recipe document from Firestore
       await _firestore.collection('recipes').doc(recipeId).delete();
       return null; // Success
