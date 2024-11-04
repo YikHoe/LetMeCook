@@ -33,6 +33,18 @@ class ApplicationsRepository {
         return returnMessage;
       }
 
+      // delete previous rejected application if any
+      await _firestore
+        .collection('applications')
+        .where('userid', isEqualTo: user.uid)
+        .where('status', isEqualTo: 'REJECTED')
+        .get()
+        .then((QuerySnapshot snapshot) {
+          for (DocumentSnapshot doc in snapshot.docs) {
+            doc.reference.delete();
+          }
+        });
+
       // Create a new recipe object
       Applications application = Applications(
           id: '',
@@ -73,7 +85,7 @@ class ApplicationsRepository {
   }
 
   // Check if user have pending application
-  Future<Map<String, dynamic>> checkPending() async {
+  Future<Map<String, dynamic>> checkCurrentApplication() async {
     Map<String, dynamic> applicationRecord = {};
 
     try {
@@ -99,14 +111,16 @@ class ApplicationsRepository {
         QuerySnapshot pendingApplication = await _firestore
             .collection('applications')
             .where('userid', isEqualTo: user.uid)
-            .where('status', isEqualTo: 'PENDING')
             .get();
 
         if (pendingApplication.docs.isNotEmpty) {
-          applicationRecord['hasPending'] = true;
+          if (pendingApplication.docs.first['status'] == 'PENDING') {
+            applicationRecord['hasPending'] = true;
+          } else if (pendingApplication.docs.first['status'] == 'REJECTED') {
+            applicationRecord['isRejected'] = true;
+            applicationRecord['reason'] = pendingApplication.docs.first['reason'];
+          }
           applicationRecord['id'] = pendingApplication.docs.first.id;
-        } else {
-          applicationRecord['hasPending'] = false;
         }
 
         return applicationRecord;
