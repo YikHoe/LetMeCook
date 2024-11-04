@@ -8,39 +8,110 @@ import '/flutter_flow/flutter_flow_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'upload_recipe_page_model.dart';
-export 'upload_recipe_page_model.dart';
+import 'modify_recipe_page_model.dart';
+export 'modify_recipe_page_model.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
-class UploadRecipePageWidget extends StatefulWidget {
-  const UploadRecipePageWidget({super.key});
+class ModifyRecipePageWidget extends StatefulWidget {
+  final Map<String, dynamic> recipeData;
+  const ModifyRecipePageWidget({super.key, required this.recipeData});
 
   @override
-  State<UploadRecipePageWidget> createState() => _UploadRecipePageWidgetState();
+  State<ModifyRecipePageWidget> createState() => _ModifyRecipePageWidgetState();
 }
 
-class _UploadRecipePageWidgetState extends State<UploadRecipePageWidget> {
-  late UploadRecipePageModel _model;
+class _ModifyRecipePageWidgetState extends State<ModifyRecipePageWidget> {
+  late ModifyRecipePageModel _model;
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => UploadRecipePageModel());
+    _model = createModel(context, () => ModifyRecipePageModel());
+
+    // Initialize form fields with recipeData
+    _model.recipeTitleController.text = widget.recipeData['recipeTitle'] ?? '';
+    _model.descriptionController.text = widget.recipeData['description'] ?? '';
+    _model.ingredientsController.text = widget.recipeData['ingredients'] ?? '';
+    _model.instructionsController.text =
+        widget.recipeData['instructions'] ?? '';
+    _model.cookingTimeController.text =
+        widget.recipeData['cookingTime']?.toString() ?? '';
+    _model.videoTutorialLinkController.text =
+        widget.recipeData['videoTutorialLink'] ?? '';
+    _difficulty = widget.recipeData['difficulty'] ?? 'Easy';
   }
 
-  void clearForm() {
-    // Reset any form fields, controllers, or variables here.
-    _model.recipeTitleController.clear();
-    _model.descriptionController.clear();
-    _model.ingredientsController.clear();
-    _model.instructionsController.clear();
-    _model.cookingTimeController.clear();
-    _model.videoTutorialLinkController.clear();
-    _imageBytes = null;
-    _imageFile = null;
+  String getStatusText(int status) {
+    switch (status) {
+      case 1:
+        return 'Approved';
+      case -1:
+        return 'Rejected';
+      default:
+        return 'Pending';
+    }
+  }
+
+  Future<void> _deleteRecipe() async {
+    bool confirmed = await _showConfirmationDialog(
+        'Delete Recipe', 'Are you sure you want to delete this recipe?');
+    if (!confirmed) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Deleting recipe...")),
+    );
+    await RecipeRepository().deleteRecipe(widget.recipeData['id']);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Recipe deleted successfully.")),
+    );
+    Navigator.pop(context);
+  }
+
+  Future<void> _editRecipe() async {
+    String dialogTitle = 'Edit Recipe';
+    String dialogContent;
+
+    int status = widget.recipeData['status'] ?? 0;
+    if (status == 1) {
+      dialogContent =
+          'This recipe is currently approved. Editing it will reset its status to "Pending" for re-verification. Do you want to proceed?';
+    } else if (status == -1) {
+      dialogContent =
+          'This recipe was previously rejected. Are you sure you want to resubmit?';
+    } else {
+      dialogContent = 'Are you sure you want to edit this recipe?';
+    }
+
+    bool confirmed = await _showConfirmationDialog(dialogTitle, dialogContent);
+    if (!confirmed) return;
+
+    await _submitRecipe();
+  }
+
+  Future<bool> _showConfirmationDialog(String title, String content) async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(title),
+              content: Text(content),
+              actions: [
+                TextButton(
+                  child: Text('Cancel'),
+                  onPressed: () => Navigator.of(context).pop(false),
+                ),
+                TextButton(
+                  child: Text('Confirm'),
+                  onPressed: () => Navigator.of(context).pop(true),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
   }
 
   @override
@@ -50,94 +121,64 @@ class _UploadRecipePageWidgetState extends State<UploadRecipePageWidget> {
   }
 
   Future<void> _submitRecipe() async {
-    // Validate required fields before showing the uploading message
     if (_model.recipeTitleController.text.isEmpty ||
         _model.descriptionController.text.isEmpty ||
         _model.ingredientsController.text.isEmpty ||
         _model.instructionsController.text.isEmpty ||
-        _model.cookingTimeController.text.isEmpty ||
-        (_imageBytes == null && _imageFile == null)) {
+        _model.cookingTimeController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content:
               Text('Please fill out all required fields and upload an image.'),
         ),
       );
-      return; // Exit early if validation fails
+      return;
     }
 
-    // Validate cooking time format
     int cookingTime;
     try {
       cookingTime = int.parse(_model.cookingTimeController.text);
-      // Check if cooking time is less than or equal to zero
       if (cookingTime <= 0) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content:
                   Text('Please enter a valid cooking time greater than zero.')),
         );
-        return; // Exit early if cooking time is invalid
+        return;
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text('Please enter a valid cooking time in minutes.')),
       );
-      return; // Exit early if cooking time is invalid
+      return;
     }
 
-    // If all fields are filled and cooking time is valid, show the uploading message
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Uploading recipe...')),
+      SnackBar(content: Text('Updating recipe...')),
     );
 
-    // Call the addRecipe function and handle errors
-    final String? result = await RecipeRepository().addRecipe(
+    final String? result = await RecipeRepository().updateRecipe(
+      widget.recipeData['id'],
       _model.recipeTitleController.text,
       _model.descriptionController.text,
       _model.ingredientsController.text,
       _model.instructionsController.text,
-      cookingTime, // Use the validated cooking time
-      _difficulty, // Use selected value for difficulty
+      cookingTime,
+      _difficulty,
       _model.videoTutorialLinkController.text,
-      imageBytes: _imageBytes, // Use imageBytes for web
-      imageFile: _imageFile, // Use imageFile for mobile/desktop
+      imageBytes: _imageBytes,
+      imageFile: _imageFile,
     );
 
-    if (result == "admin") {
+    if (result == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Recipe submitted successfully.',
-          ),
-        ),
+        SnackBar(content: Text('Recipe updated successfully.')),
       );
-      _formKey.currentState!.reset();
-      setState(() {
-        _difficulty = 'Easy';
-        _imageBytes = null;
-        _imageFile = null;
-      });
-      clearForm();
-    } else if (result == "verifiedUser") {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Recipe submitted successfully. The administrator will review your recipe before publishing.',
-          ),
-        ),
-      );
-      _formKey.currentState!.reset();
-      setState(() {
-        _difficulty = 'Easy';
-        _imageBytes = null;
-        _imageFile = null;
-      });
-      clearForm();
+      Navigator.pop(context, true); // Navigate back and trigger refresh
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to upload recipe. Please try again.")),
+        SnackBar(content: Text("Failed to update recipe: $result")),
       );
     }
   }
@@ -151,54 +192,35 @@ class _UploadRecipePageWidgetState extends State<UploadRecipePageWidget> {
 
   Future<void> _pickImage() async {
     if (kIsWeb) {
-      // Web-specific image picking
       final pickedFile = await picker.pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
-        // Read the bytes outside of setState
         final bytes = await pickedFile.readAsBytes();
-        // Now, update the state with the bytes
         setState(() {
           _imageBytes = bytes;
+          _imageFile = null; // Clear _imageFile to use web image
         });
       }
     } else {
-      // Non-web platforms (Mobile/Desktop)
       final pickedFile = await picker.pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
         setState(() {
           _imageFile = pickedFile;
+          _imageBytes = null; // Clear _imageBytes to use local image
         });
       }
     }
   }
 
   Widget _buildImageWidget() {
-    if (kIsWeb && _imageBytes != null) {
-      // Display web image as bytes
-      return ClipRect(
-        child: Align(
-          alignment: Alignment.center, // Aligns the image in the center
-          widthFactor: 1.0, // Take full width of the container
-          heightFactor: 1.0, // Take full height of the container
-          child: Image.memory(
-            _imageBytes!,
-            fit: BoxFit.cover, // Maintain aspect ratio
-          ),
-        ),
-      );
+    if (_imageBytes != null) {
+      // Display selected image from web
+      return Image.memory(_imageBytes!, fit: BoxFit.cover);
     } else if (_imageFile != null) {
-      // Display file image for non-web
-      return ClipRect(
-        child: Align(
-          alignment: Alignment.center, // Aligns the image in the center
-          widthFactor: 1.0, // Take full width of the container
-          heightFactor: 1.0, // Take full height of the container
-          child: Image.file(
-            File(_imageFile!.path),
-            fit: BoxFit.cover, // Maintain aspect ratio
-          ),
-        ),
-      );
+      // Display selected image from local file
+      return Image.file(File(_imageFile!.path), fit: BoxFit.cover);
+    } else if (widget.recipeData['image'] != null) {
+      // Display original image from database
+      return Image.network(widget.recipeData['image'], fit: BoxFit.cover);
     } else {
       // Placeholder text when no image is selected
       return Center(
@@ -215,7 +237,7 @@ class _UploadRecipePageWidgetState extends State<UploadRecipePageWidget> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Upload Recipe',
+          'Edit Recipe',
           style: FlutterFlowTheme.of(context).headlineMedium.override(
                 fontFamily: 'Inter Tight',
                 color: Colors.white,
@@ -226,29 +248,46 @@ class _UploadRecipePageWidgetState extends State<UploadRecipePageWidget> {
         centerTitle: true,
         elevation: 2.0,
         backgroundColor: Color(0xFFE59368),
-        leading: FlutterFlowIconButton(
-          borderColor: Colors.transparent,
-          borderRadius: 30.0,
-          borderWidth: 1.0,
-          buttonSize: 60.0,
-          icon: Icon(
-            Icons.arrow_back_rounded,
-            color: Colors.white,
-            size: 30.0,
-          ),
-          onPressed: () async {
-            context.pop();
-          },
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_rounded, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Container(
         color: Color(0xFFF1F4F8),
-        padding: const EdgeInsetsDirectional.fromSTEB(24.0, 24.0, 24.0, 24.0),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
-              SizedBox(height: 4.0),
+              // Status Display
+              Align(
+                alignment: Alignment.center,
+                child: Container(
+                  padding: EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    color: widget.recipeData['status'] == 1
+                        ? Colors.green.withOpacity(0.2)
+                        : widget.recipeData['status'] == -1
+                            ? Colors.red.withOpacity(0.2)
+                            : Colors.yellow.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Text(
+                    'Status: ${getStatusText(widget.recipeData['status'] ?? 0)}',
+                    style: TextStyle(
+                      color: widget.recipeData['status'] == 1
+                          ? Colors.green
+                          : widget.recipeData['status'] == -1
+                              ? Colors.red
+                              : Colors.orange,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 24.0),
+
               // Recipe Title
               TextFormField(
                 controller: _model.recipeTitleController,
@@ -259,12 +298,6 @@ class _UploadRecipePageWidgetState extends State<UploadRecipePageWidget> {
                   ),
                   filled: true,
                   fillColor: Colors.white,
-                  labelStyle: TextStyle(
-                    color: Colors.black,
-                  ),
-                ),
-                style: TextStyle(
-                  color: Colors.black,
                 ),
               ),
               SizedBox(height: 16.0),
@@ -279,12 +312,6 @@ class _UploadRecipePageWidgetState extends State<UploadRecipePageWidget> {
                   ),
                   filled: true,
                   fillColor: Colors.white,
-                  labelStyle: TextStyle(
-                    color: Colors.black,
-                  ),
-                ),
-                style: TextStyle(
-                  color: Colors.black,
                 ),
                 maxLines: 3,
               ),
@@ -300,12 +327,6 @@ class _UploadRecipePageWidgetState extends State<UploadRecipePageWidget> {
                   ),
                   filled: true,
                   fillColor: Colors.white,
-                  labelStyle: TextStyle(
-                    color: Colors.black,
-                  ),
-                ),
-                style: TextStyle(
-                  color: Colors.black,
                 ),
                 maxLines: 4,
               ),
@@ -321,12 +342,6 @@ class _UploadRecipePageWidgetState extends State<UploadRecipePageWidget> {
                   ),
                   filled: true,
                   fillColor: Colors.white,
-                  labelStyle: TextStyle(
-                    color: Colors.black,
-                  ),
-                ),
-                style: TextStyle(
-                  color: Colors.black,
                 ),
                 maxLines: 5,
               ),
@@ -342,12 +357,6 @@ class _UploadRecipePageWidgetState extends State<UploadRecipePageWidget> {
                   ),
                   filled: true,
                   fillColor: Colors.white,
-                  labelStyle: TextStyle(
-                    color: Colors.black,
-                  ),
-                ),
-                style: TextStyle(
-                  color: Colors.black,
                 ),
               ),
               SizedBox(height: 16.0),
@@ -361,32 +370,21 @@ class _UploadRecipePageWidgetState extends State<UploadRecipePageWidget> {
                   ),
                   filled: true,
                   fillColor: Colors.white,
-                  labelStyle: TextStyle(
-                    color: Colors.black,
-                  ),
                 ),
                 value: _difficulty,
                 items: ['Easy', 'Medium', 'Hard'].map((difficulty) {
                   return DropdownMenuItem(
-                    value: difficulty,
-                    child: Text(difficulty),
-                  );
+                      value: difficulty, child: Text(difficulty));
                 }).toList(),
                 onChanged: (value) {
                   setState(() {
                     _difficulty = value!;
                   });
                 },
-                style: TextStyle(
-                  color: Colors.black,
-                ),
-                dropdownColor: Colors.white,
-                iconEnabledColor: Colors.black,
               ),
-
               SizedBox(height: 16.0),
 
-              // Video Tutorial URL
+              // Video Tutorial Link
               TextFormField(
                 controller: _model.videoTutorialLinkController,
                 decoration: InputDecoration(
@@ -396,15 +394,10 @@ class _UploadRecipePageWidgetState extends State<UploadRecipePageWidget> {
                   ),
                   filled: true,
                   fillColor: Colors.white,
-                  labelStyle: TextStyle(
-                    color: Colors.black,
-                  ),
-                ),
-                style: TextStyle(
-                  color: Colors.black,
                 ),
               ),
               SizedBox(height: 16.0),
+
               // Image Upload
               GestureDetector(
                 onTap: _pickImage,
@@ -418,21 +411,29 @@ class _UploadRecipePageWidgetState extends State<UploadRecipePageWidget> {
                 ),
               ),
               SizedBox(height: 16.0),
-              // Submit Button
-              ElevatedButton(
-                onPressed:
-                    _submitRecipe, // Call the existing _submitRecipe function
-                child: Text(
-                  'Submit Recipe',
-                ),
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: Color(0xFFE59368),
-                  padding: EdgeInsets.symmetric(vertical: 16.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25.0),
+
+              // Centered Action Buttons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: _deleteRecipe,
+                    child: Text('Delete'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      padding: EdgeInsets.symmetric(horizontal: 24.0),
+                    ),
                   ),
-                ),
+                  SizedBox(width: 16.0),
+                  ElevatedButton(
+                    onPressed: _editRecipe,
+                    child: Text('Edit'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFFE59368),
+                      padding: EdgeInsets.symmetric(horizontal: 24.0),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
