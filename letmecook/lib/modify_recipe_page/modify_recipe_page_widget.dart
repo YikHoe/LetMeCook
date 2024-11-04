@@ -214,13 +214,42 @@ class _ModifyRecipePageWidgetState extends State<ModifyRecipePageWidget> {
   Widget _buildImageWidget() {
     if (_imageBytes != null) {
       // Display selected image from web
-      return Image.memory(_imageBytes!, fit: BoxFit.cover);
+      return ClipRect(
+        child: Align(
+          alignment: Alignment.center, // Aligns the image in the center
+          widthFactor: 1.0, // Take full width of the container
+          heightFactor: 1.0, // Take full height of the container
+          child: Image.memory(
+            _imageBytes!,
+            fit: BoxFit.cover, // Maintain aspect ratio
+          ),
+        ),
+      );
     } else if (_imageFile != null) {
       // Display selected image from local file
-      return Image.file(File(_imageFile!.path), fit: BoxFit.cover);
+      return ClipRect(
+        child: Align(
+          alignment: Alignment.center, // Aligns the image in the center
+          widthFactor: 1.0, // Take full width of the container
+          heightFactor: 1.0, // Take full height of the container
+          child: Image.file(
+            File(_imageFile!.path),
+            fit: BoxFit.cover, // Maintain aspect ratio
+          ),
+        ),
+      );
     } else if (widget.recipeData['image'] != null) {
       // Display original image from database
-      return Image.network(widget.recipeData['image'], fit: BoxFit.cover);
+            return ClipRect(
+        child: Align(
+          alignment: Alignment.center, // Aligns the image in the center
+          widthFactor: 1.0, // Take full width of the container
+          heightFactor: 1.0, // Take full height of the container
+          child: Image.network(widget.recipeData['image'],
+            fit: BoxFit.cover, // Maintain aspect ratio
+          ),
+        ),
+      );
     } else {
       // Placeholder text when no image is selected
       return Center(
@@ -298,6 +327,12 @@ class _ModifyRecipePageWidgetState extends State<ModifyRecipePageWidget> {
                   ),
                   filled: true,
                   fillColor: Colors.white,
+                  labelStyle: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+                style: TextStyle(
+                  color: Colors.black,
                 ),
               ),
               SizedBox(height: 16.0),
@@ -312,6 +347,12 @@ class _ModifyRecipePageWidgetState extends State<ModifyRecipePageWidget> {
                   ),
                   filled: true,
                   fillColor: Colors.white,
+                  labelStyle: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+                style: TextStyle(
+                  color: Colors.black,
                 ),
                 maxLines: 3,
               ),
@@ -327,6 +368,12 @@ class _ModifyRecipePageWidgetState extends State<ModifyRecipePageWidget> {
                   ),
                   filled: true,
                   fillColor: Colors.white,
+                  labelStyle: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+                style: TextStyle(
+                  color: Colors.black,
                 ),
                 maxLines: 4,
               ),
@@ -342,6 +389,12 @@ class _ModifyRecipePageWidgetState extends State<ModifyRecipePageWidget> {
                   ),
                   filled: true,
                   fillColor: Colors.white,
+                  labelStyle: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+                style: TextStyle(
+                  color: Colors.black,
                 ),
                 maxLines: 5,
               ),
@@ -357,6 +410,12 @@ class _ModifyRecipePageWidgetState extends State<ModifyRecipePageWidget> {
                   ),
                   filled: true,
                   fillColor: Colors.white,
+                  labelStyle: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+                style: TextStyle(
+                  color: Colors.black,
                 ),
               ),
               SizedBox(height: 16.0),
@@ -370,6 +429,12 @@ class _ModifyRecipePageWidgetState extends State<ModifyRecipePageWidget> {
                   ),
                   filled: true,
                   fillColor: Colors.white,
+                  labelStyle: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+                style: TextStyle(
+                  color: Colors.black,
                 ),
                 value: _difficulty,
                 items: ['Easy', 'Medium', 'Hard'].map((difficulty) {
@@ -394,6 +459,12 @@ class _ModifyRecipePageWidgetState extends State<ModifyRecipePageWidget> {
                   ),
                   filled: true,
                   fillColor: Colors.white,
+                  labelStyle: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+                style: TextStyle(
+                  color: Colors.black,
                 ),
               ),
               SizedBox(height: 16.0),

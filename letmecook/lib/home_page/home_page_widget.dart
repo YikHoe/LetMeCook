@@ -472,6 +472,25 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                         InkWell(
                           onTap: () {
                             context.pushNamed(
+                              'view_uploaded_recipe_page',
+                              pathParameters: {
+                                'uid': widget.userData!['uid'].toString(),
+                              },
+                              extra: widget.userData,
+                            );
+                          },
+                          child: Card(
+                            color: Colors.white,
+                            child: ListTile(
+                              leading: Icon(Icons.article, color: Colors.black),
+                              title: Text('View My Uploaded Recipe',
+                                  style: TextStyle(color: Colors.black)),
+                            ),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            context.pushNamed(
                               'pending_approval_recipe_page',
                             );
                           },
