@@ -27,7 +27,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
   late Future<List<Map<String, dynamic>>> _approvedRecipes;
   late Future<List<Map<String, dynamic>>> savedRecipes;
   String searchKey = '';
-  String difficulty = '';
+  String difficulty = 'All';
   bool fromSearch = false;
   bool fromFilter = false;
 
