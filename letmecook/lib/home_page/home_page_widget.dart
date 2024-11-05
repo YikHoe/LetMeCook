@@ -148,10 +148,65 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                 Expanded(
                                   child: Row(
                                     children: [
-                                      Icon(
-                                        Icons.filter_list,
-                                        color: Colors.black,
-                                        size: 24.0,
+                                      PopupMenuTheme(
+                                        data: PopupMenuThemeData(
+                                          color: Colors.white,
+                                        ),
+                                        child: PopupMenuButton<String>(
+                                          icon: Icon(
+                                            Icons.filter_list,
+                                            color: Colors.black,
+                                            size: 24.0,
+                                          ),
+                                          onSelected: (String difficulty) {
+                                            // Handle selection (update UI, filter list, etc.)
+                                            setState(() {
+                                              // Store or use the selected difficulty
+                                              this.difficulty = difficulty;
+                                              _refreshRecipes('', difficulty); // Your filter function here
+                                            });
+                                          },
+                                          itemBuilder: (BuildContext context) {
+                                            return <PopupMenuEntry<String>>[
+                                              PopupMenuItem<String>(
+                                                value: 'All',
+                                                child: Text(
+                                                  'All',
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                              ),
+                                              PopupMenuItem<String>(
+                                                value: 'Easy',
+                                                child: Text(
+                                                  'Easy',
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                              ),
+                                              PopupMenuItem<String>(
+                                                value: 'Medium',
+                                                child: Text(
+                                                  'Medium',
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                              ),
+                                              PopupMenuItem<String>(
+                                                value: 'Hard',
+                                                child: Text(
+                                                  'Hard',
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                              ),
+                                            ];
+                                          },
+                                        ),
                                       ),
                                       SizedBox(width: 8.0),
                                       Expanded(
@@ -202,37 +257,6 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                               ],
                             ),
                           ),
-                        ),
-                        DropdownButtonFormField<String>(
-                          decoration: InputDecoration(
-                            labelText: 'Difficulty',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            filled: true,
-                            fillColor: Colors.white,
-                            labelStyle: TextStyle(
-                              color: Colors.black,
-                            ),
-                          ),
-                          value: difficulty,
-                          items: ['All', 'Easy', 'Medium', 'Hard'].map((difficulty) {
-                            return DropdownMenuItem(
-                              value: difficulty,
-                              child: Text(difficulty),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            difficulty = value!;
-                            setState(() {
-                              _refreshRecipes('', difficulty);
-                            });
-                          },
-                          style: TextStyle(
-                            color: Colors.black,
-                          ),
-                          dropdownColor: Colors.white,
-                          iconEnabledColor: Colors.black,
                         ),
                         Text(
                           'Trending',
@@ -514,14 +538,6 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Card(
-                        color: Colors.white,
-                        child: ListTile(
-                          leading: Icon(Icons.settings, color: Colors.black),
-                          title: Text('Edit Profile',
-                              style: TextStyle(color: Colors.black)),
-                        ),
-                      ),
                       if (userRole == 'admin') ...[
                         InkWell(
                           onTap: () {
