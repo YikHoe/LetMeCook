@@ -14,12 +14,7 @@ class ApplicationsRepository {
   final FirebaseStorage _firebaseStorage = FirebaseStorage.instance;
 
   // save and store application submitted by user
-  Future<Map<String, dynamic>> addApplication(
-    String fullname,
-    int age,
-    String occupation,
-    int yearsOfExp,
-  ) async {
+  Future<Map<String, dynamic>> addApplication(String fullname, int age, String occupation, int yearsOfExp,) async {
     Map<String, dynamic> returnMessage = {};
     try {
       // Get current user
@@ -38,6 +33,18 @@ class ApplicationsRepository {
         return returnMessage;
       }
 
+      // delete previous rejected application if any
+      await _firestore
+        .collection('applications')
+        .where('userid', isEqualTo: user.uid)
+        .where('status', isEqualTo: 'REJECTED')
+        .get()
+        .then((QuerySnapshot snapshot) {
+          for (DocumentSnapshot doc in snapshot.docs) {
+            doc.reference.delete();
+          }
+        });
+
       // Create a new recipe object
       Applications application = Applications(
           id: '',
@@ -46,7 +53,8 @@ class ApplicationsRepository {
           age: age,
           occupation: occupation,
           yearsOfExp: yearsOfExp,
-          status: 'PENDING'
+          status: 'PENDING',
+          reason: '',
       );
 
       // Add the recipe to Firestore and get the document reference
@@ -60,7 +68,8 @@ class ApplicationsRepository {
           age: age,
           occupation: occupation,
           yearsOfExp: yearsOfExp,
-          status: 'PENDING'
+          status: 'PENDING',
+          reason: '',
       );
 
       // Add the application to Firestore
@@ -76,7 +85,7 @@ class ApplicationsRepository {
   }
 
   // Check if user have pending application
-  Future<Map<String, dynamic>> checkPending() async {
+  Future<Map<String, dynamic>> checkCurrentApplication() async {
     Map<String, dynamic> applicationRecord = {};
 
     try {
@@ -102,13 +111,16 @@ class ApplicationsRepository {
         QuerySnapshot pendingApplication = await _firestore
             .collection('applications')
             .where('userid', isEqualTo: user.uid)
-            .where('status', isEqualTo: 'PENDING')
             .get();
 
         if (pendingApplication.docs.isNotEmpty) {
-          applicationRecord['hasPending'] = true;
-        } else {
-          applicationRecord['hasPending'] = false;
+          if (pendingApplication.docs.first['status'] == 'PENDING') {
+            applicationRecord['hasPending'] = true;
+          } else if (pendingApplication.docs.first['status'] == 'REJECTED') {
+            applicationRecord['isRejected'] = true;
+            applicationRecord['reason'] = pendingApplication.docs.first['reason'];
+          }
+          applicationRecord['id'] = pendingApplication.docs.first.id;
         }
 
         return applicationRecord;
@@ -120,5 +132,84 @@ class ApplicationsRepository {
       applicationRecord['message'] = 'Unexpected Error occurred. Please try again later.';
       return applicationRecord;
     }
+  }
+
+  // Get all applications under pending status
+  Future<List<Map<String, dynamic>>> getAllPending() async {
+    List<Map<String, dynamic>> pendingApplications = [];
+
+    try {
+      QuerySnapshot allPending = await _firestore
+          .collection('applications')
+          .where('status', isEqualTo: 'PENDING')
+          .get();
+
+      for (var application in allPending.docs) {
+        Applications appRec = Applications.fromFirestore(application);
+
+        pendingApplications.add({
+          'id': application.id,
+          'userid': appRec.userid,
+          'fullname': appRec.fullname,
+          'age': appRec.age,
+          'occupation': appRec.occupation,
+          'yearsOfExp': appRec.yearsOfExp,
+        });
+      }
+      return pendingApplications;
+    } catch (e) {
+      return pendingApplications;
+    }
+  }
+
+  Future<Map<String, dynamic>> updateStatus(String appID, int type, [String reason = ""]) async {
+    Map<String, dynamic> message = {};
+
+    if (type == 1) {
+      try {
+        await _firestore
+          .collection('applications')
+          .doc(appID)
+          .update({
+            'status': 'APPROVED',
+          });
+
+        DocumentSnapshot doc = await _firestore
+          .collection('applications')
+          .doc(appID)
+          .get();
+
+        String userID = doc['userid'];
+
+        await _firestore
+          .collection('users')
+          .doc(userID)
+          .update({'user_role': 'verified_user'});
+
+        message['status'] = 200;
+        message['message'] = 'User role has been updated successfully';
+      } catch (e) {
+        message['status'] = 500;
+        message['message'] = 'Unexpected error has occurred!';
+      }
+
+    } else {
+      try {
+        await _firestore
+            .collection('applications')
+            .doc(appID)
+            .update({
+          'status': 'REJECTED',
+          'reason': reason,
+        });
+
+        message['status'] = 200;
+        message['message'] = 'Application has been rejected';
+      } catch (e) {
+        message['status'] = 500;
+        message['message'] = 'Unexpected error has occurred!';
+      }
+    }
+    return message;
   }
 }

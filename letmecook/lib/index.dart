@@ -16,5 +16,7 @@ export '/modify_recipe_page/modify_recipe_page_widget.dart'
     show ModifyRecipePageWidget;
 export '/display_pending_approval_recipe_page/display_pending_approval_recipe_page_widget.dart'
     show DisplayPendingApprovalRecipePageWidget;
+export '/display_pending_approval_application_page/display_pending_approval_application_widget.dart'
+    show DisplayPendingApprovalApplicationWidget;
 export '/display_recipe_page/display_recipe_page_widget.dart'
     show DisplayRecipePageWidget;

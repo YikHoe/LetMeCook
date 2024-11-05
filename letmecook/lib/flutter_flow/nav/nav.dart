@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:letmecook/display_pending_approval_application_page/display_pending_approval_application_widget.dart';
 import 'package:letmecook/display_recipe_page/display_recipe_page_widget.dart';
 import 'package:letmecook/pending_approval_recipe_page/pending_approval_recipe_page_widget.dart';
+import 'package:letmecook/pending_approval_verification_page/pending_approval_verification_widget.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 
@@ -110,8 +112,18 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         ),
         FFRoute(
           name: 'pending_approval_verification_page',
-          path: '/pendingApprovalVerificationPage',
-          builder: (context, params) => PendingApprovalVerificationPageWidget(),
+          path: '/pendingVerificationPage',
+          builder: (context, params) => PendingApprovalApplicationsWidget(),
+        ),
+        FFRoute(
+          name: 'display_pending_approval_verification',
+          path: '/displayPendingApprovalApplicationPage/:id',
+          builder: (context, params) {
+            final appData = params.state.extra as Map<String, dynamic>;
+            return DisplayPendingApprovalApplicationWidget(
+              applicationData: appData,
+            );
+          },
         ),
         FFRoute(
           name: 'display_pending_approval_recipe_page',

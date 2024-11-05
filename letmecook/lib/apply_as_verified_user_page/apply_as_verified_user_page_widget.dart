@@ -53,7 +53,7 @@ class _ApplyAsVerifiedUserPageWidgetState extends State<ApplyAsVerifiedUserPageW
     _model.textController4 ??= TextEditingController();
     _model.textFieldFocusNode4 ??= FocusNode();
 
-    checkResult = _applicationsRepository.checkPending();
+    checkResult = _applicationsRepository.checkCurrentApplication();
   }
 
   void clearForm() {
@@ -196,17 +196,100 @@ class _ApplyAsVerifiedUserPageWidgetState extends State<ApplyAsVerifiedUserPageW
                   final data = snapshot.data!;
                   final message = data['message'];
                   final hasPending = data['hasPending'] ?? false;
+                  final isRejected = data['isRejected'] ?? false;
 
                   if (message == 200) {
                     return hasPending
-                      ? Center(
-                        child: Text(
-                          'You already have a application on pending!\nPlease wait for confirmation before submitting again.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
+                      ? Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Application',
+                            style: FlutterFlowTheme.of(context).headlineSmall.override(
+                              fontFamily: 'Inter Tight',
                               color: Colors.black,
+                              letterSpacing: 0.0,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        )
+                          SizedBox(height: 20),
+                          Material(
+                            color: Colors.transparent,
+                            elevation: 2.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                            child: Container(
+                              width: MediaQuery.sizeOf(context).width * 0.9,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                              child: Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
+                                    24.0, 24.0, 24.0, 24.0),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      'You have a pending application.\nPlease wait before submitting another one.',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    Card(
+                                      color: Colors.grey[300],
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8.0),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16.0),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Current Application',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 18,
+                                              ),
+                                              textAlign: TextAlign.left,
+                                            ),
+                                            SizedBox(height: 10),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Text(
+                                                  'ID: ${data['id']}',
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  'PENDING',
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                  ].divide(SizedBox(height: 16.0)),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ]
                       )
                       : Column(
                         mainAxisSize: MainAxisSize.min,
@@ -222,6 +305,73 @@ class _ApplyAsVerifiedUserPageWidgetState extends State<ApplyAsVerifiedUserPageW
                               fontWeight: FontWeight.w600,
                             ),
                           ),
+                          isRejected ? Material(
+                            color: Colors.transparent,
+                            elevation: 2.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                            child: Container(
+                              width: MediaQuery.sizeOf(context).width * 0.9,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                              child: Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
+                                    24.0, 24.0, 24.0, 24.0),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Card(
+                                      color: Colors.grey[300],
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8.0),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16.0),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Rejected Application',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 18,
+                                              ),
+                                              textAlign: TextAlign.left,
+                                            ),
+                                            SizedBox(height: 10),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Text(
+                                                  'Reason: ',
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  data['reason'],
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                  ].divide(SizedBox(height: 16.0)),
+                                ),
+                              ),
+                            ),
+                          ) : SizedBox(height: 0,),
                           Material(
                             color: Colors.transparent,
                             elevation: 2.0,

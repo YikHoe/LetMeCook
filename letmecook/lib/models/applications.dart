@@ -8,6 +8,7 @@ class Applications {
   final String occupation;
   final int yearsOfExp;
   final String status;
+  final String reason;
 
   Applications({
     required this.id,
@@ -17,6 +18,7 @@ class Applications {
     required this.occupation,
     required this.yearsOfExp,
     required this.status,
+    required this.reason,
   });
 
   factory Applications.fromFirestore(DocumentSnapshot doc) {
@@ -29,6 +31,7 @@ class Applications {
       occupation: data['occupation'] ?? '',
       yearsOfExp: data['yearsOfExp'] ?? 0,
       status: data['status'] ?? "PENDING",
+      reason: data['reason'] ?? '',
     );
   }
 
@@ -41,6 +44,7 @@ class Applications {
       'occupation': occupation,
       'yearsOfExp': yearsOfExp,
       'status': status,
+      'reason': reason,
     };
   }
 }

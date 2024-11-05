@@ -1,21 +1,19 @@
+import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
-import 'home_page_widget.dart' show HomePageWidget;
+import 'pending_approval_verification_widget.dart' show PendingApprovalApplicationsWidget;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-class HomePageModel
-    extends FlutterFlowModel<HomePageWidget> {
-  TextEditingController searchController = TextEditingController();
+class PendingApprovalApplicationsModel extends FlutterFlowModel<PendingApprovalApplicationsWidget> {
 
   @override
   void initState(BuildContext context) {}
 
   @override
   void dispose() {
-    searchController.dispose(); // Dispose the controller when done
-  }
 
+  }
 }
