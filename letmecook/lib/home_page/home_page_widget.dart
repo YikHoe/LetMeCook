@@ -73,6 +73,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
         savedRecipes = _userRepository.getSavedRecipes();
       });
     }
+    FocusScope.of(context).unfocus();
+    
   }
 
   @override
@@ -300,6 +302,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                           },
                                           extra: recipe,
                                         );
+                                        FocusScope.of(context).unfocus();
                                         if (result == true && fromSearch == true) {
                                           _refreshRecipes(searchKey); // Refresh if returning from display_recipe_page
                                         } else if (result == true && fromFilter == true) {
@@ -508,6 +511,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                     } else if (result == true) {
                                       _refreshRecipes();
                                     }
+                                    FocusScope.of(context).unfocus();
                                   },
                                   child: ListTile(
                                     title: Text(
