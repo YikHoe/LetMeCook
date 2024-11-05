@@ -259,15 +259,17 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                           ),
                         ),
                         Text(
+                          fromSearch ? 'Search results for "$searchKey"' :
+                          fromFilter ? '$difficulty Recipes' :
                           'Trending',
                           style: FlutterFlowTheme.of(context)
                               .headlineSmall
                               .override(
-                                fontFamily: 'Inter Tight',
-                                color: Colors.black,
-                                letterSpacing: 0.0,
-                                fontWeight: FontWeight.w600,
-                              ),
+                            fontFamily: 'Inter Tight',
+                            color: Colors.black,
+                            letterSpacing: 0.0,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                         FutureBuilder<List<Map<String, dynamic>>>(
                           future: _approvedRecipes,
