@@ -418,7 +418,51 @@ class RecipeRepository {
         }
 
       }
-      print(recipes.length);
+      return recipes;
+    } catch (e) {
+      return recipes;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> filter(String difficulty) async {
+    List<Map<String, dynamic>> recipes = [];
+
+    try {
+      QuerySnapshot snapshot = await _firestore
+          .collection('recipes')
+          .where('status', isEqualTo: 1)
+          .where('difficulty', isEqualTo: difficulty)
+          .get();
+
+      for (var doc in snapshot.docs) {
+        Recipe recipe = Recipe.fromFirestore(doc);
+
+        QuerySnapshot userSnapshot = await _firestore
+            .collection('users')
+            .where('email', isEqualTo: recipe.uploadedBy)
+            .get();
+
+        String username = 'Unknown';
+        if (userSnapshot.docs.isNotEmpty) {
+          // Extract the username from the user's document
+          Map<String, dynamic> userData =
+          userSnapshot.docs.first.data() as Map<String, dynamic>;
+          username = userData['username'] ?? 'Unknown';
+        }
+
+        recipes.add({
+          'id': doc.id,
+          'recipeTitle': recipe.recipeTitle,
+          'description': recipe.description,
+          'ingredients': recipe.ingredients,
+          'instructions': recipe.instructions,
+          'cookingTime': recipe.cookingTime,
+          'difficulty': recipe.difficulty,
+          'videoTutorialLink': recipe.videoTutorialLink,
+          'image': recipe.image,
+          'username': username,
+        });
+      }
       return recipes;
     } catch (e) {
       return recipes;

@@ -27,7 +27,9 @@ class _HomePageWidgetState extends State<HomePageWidget> {
   late Future<List<Map<String, dynamic>>> _approvedRecipes;
   late Future<List<Map<String, dynamic>>> savedRecipes;
   String searchKey = '';
+  String difficulty = '';
   bool fromSearch = false;
+  bool fromFilter = false;
 
   // Add current page index
   int currentPageIndex = 0;
@@ -46,17 +48,27 @@ class _HomePageWidgetState extends State<HomePageWidget> {
     super.dispose();
   }
 
-  void _refreshRecipes([String key = '']) {
+  void _refreshRecipes([String key = '', String difficulty = '']) {
     if (key.isNotEmpty) {
       setState(() {
         searchKey = key;
         fromSearch = true;
+        fromFilter = false;
         _approvedRecipes = _recipeRepository.search(key);
         savedRecipes = _userRepository.getSavedRecipes();
       });
+    } else if (difficulty.isNotEmpty && difficulty != 'All') {
+      fromSearch = false;
+      fromFilter = true;
+      _model.searchController.clear();
+      _approvedRecipes = _recipeRepository.filter(difficulty);
+      savedRecipes = _userRepository.getSavedRecipes();
     } else {
       setState(() {
+        fromFilter = false;
         fromSearch = false;
+        this.difficulty = 'All';
+        _model.searchController.clear();
         _approvedRecipes = _recipeRepository.getApprovedRecipesWithUsernames();
         savedRecipes = _userRepository.getSavedRecipes();
       });
@@ -191,6 +203,37 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                             ),
                           ),
                         ),
+                        DropdownButtonFormField<String>(
+                          decoration: InputDecoration(
+                            labelText: 'Difficulty',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelStyle: TextStyle(
+                              color: Colors.black,
+                            ),
+                          ),
+                          value: difficulty,
+                          items: ['All', 'Easy', 'Medium', 'Hard'].map((difficulty) {
+                            return DropdownMenuItem(
+                              value: difficulty,
+                              child: Text(difficulty),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            difficulty = value!;
+                            setState(() {
+                              _refreshRecipes('', difficulty);
+                            });
+                          },
+                          style: TextStyle(
+                            color: Colors.black,
+                          ),
+                          dropdownColor: Colors.white,
+                          iconEnabledColor: Colors.black,
+                        ),
                         Text(
                           'Trending',
                           style: FlutterFlowTheme.of(context)
@@ -233,8 +276,10 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                         );
                                         if (result == true && fromSearch == true) {
                                           _refreshRecipes(searchKey); // Refresh if returning from display_recipe_page
-                                        } else if (result == true && fromSearch == false) {
-                                          _refreshRecipes(); // Refresh if returning from display_recipe_page
+                                        } else if (result == true && fromFilter == true) {
+                                          _refreshRecipes('', difficulty); // Refresh if returning from display_recipe_page
+                                        } else if (result == true) {
+                                          _refreshRecipes();
                                         }
                                       },
                                       child: Material(
@@ -432,8 +477,10 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                     );
                                     if (result == true && fromSearch == true) {
                                       _refreshRecipes(searchKey); // Refresh if returning from display_recipe_page
-                                    } else if (result == true && fromSearch == false) {
-                                      _refreshRecipes(); // Refresh if returning from display_recipe_page
+                                    } else if (result == true && fromFilter == true) {
+                                      _refreshRecipes('', difficulty); // Refresh if returning from display_recipe_page
+                                    } else if (result == true) {
+                                      _refreshRecipes();
                                     }
                                   },
                                   child: ListTile(
