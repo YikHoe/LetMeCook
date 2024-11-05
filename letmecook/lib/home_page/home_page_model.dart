@@ -18,11 +18,4 @@ class HomePageModel
     searchController.dispose(); // Dispose the controller when done
   }
 
-  void performSearch(BuildContext context) {
-    final query = searchController.text;
-    if (query.isNotEmpty) {
-      // Implement your search functionality here
-      debugPrint("Searching for: $query");
-    }
-  }
 }

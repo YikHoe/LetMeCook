@@ -44,11 +44,18 @@ class _HomePageWidgetState extends State<HomePageWidget> {
     super.dispose();
   }
 
-  void _refreshRecipes() {
-    setState(() {
-      _approvedRecipes = _recipeRepository.getApprovedRecipesWithUsernames();
-      savedRecipes = _userRepository.getSavedRecipes();
-    });
+  void _refreshRecipes([String key = '']) {
+    if (key.isNotEmpty) {
+      setState(() {
+        _approvedRecipes = _recipeRepository.search(key);
+        savedRecipes = _userRepository.getSavedRecipes();
+      });
+    } else {
+      setState(() {
+        _approvedRecipes = _recipeRepository.getApprovedRecipesWithUsernames();
+        savedRecipes = _userRepository.getSavedRecipes();
+      });
+    }
   }
 
   @override
@@ -162,7 +169,11 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                   ),
                                 ),
                                 GestureDetector(
-                                  onTap: () => _model.performSearch(context),
+                                  onTap: () {
+                                    setState(() {
+                                      _refreshRecipes(_model.searchController.text);
+                                    });
+                                  },
                                   child: Icon(
                                     Icons.search,
                                     color: Colors.black,
@@ -192,14 +203,12 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                               return Center(child: CircularProgressIndicator());
                             }
                             if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                              return Expanded(
-                                child: Center(
+                              return Center(
                                   child: Text(
                                     'No recipes available',
                                     style: TextStyle(color: Colors.black),
                                   ),
-                                ),
-                              );
+                                );
                             }
 
                             return Column(
