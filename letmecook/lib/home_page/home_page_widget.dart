@@ -26,6 +26,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
   final UserRepository _userRepository = UserRepository();
   late Future<List<Map<String, dynamic>>> _approvedRecipes;
   late Future<List<Map<String, dynamic>>> savedRecipes;
+  String searchKey = '';
+  bool fromSearch = false;
 
   // Add current page index
   int currentPageIndex = 0;
@@ -47,11 +49,14 @@ class _HomePageWidgetState extends State<HomePageWidget> {
   void _refreshRecipes([String key = '']) {
     if (key.isNotEmpty) {
       setState(() {
+        searchKey = key;
+        fromSearch = true;
         _approvedRecipes = _recipeRepository.search(key);
         savedRecipes = _userRepository.getSavedRecipes();
       });
     } else {
       setState(() {
+        fromSearch = false;
         _approvedRecipes = _recipeRepository.getApprovedRecipesWithUsernames();
         savedRecipes = _userRepository.getSavedRecipes();
       });
@@ -139,6 +144,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                       SizedBox(width: 8.0),
                                       Expanded(
                                         child: TextField(
+                                          focusNode: _model.searchFocusNode,
                                           controller: _model.searchController,
                                           decoration: InputDecoration(
                                             hintText:
@@ -171,6 +177,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                 GestureDetector(
                                   onTap: () {
                                     setState(() {
+                                      FocusScope.of(context).unfocus();
                                       _refreshRecipes(_model.searchController.text);
                                     });
                                   },
@@ -224,7 +231,9 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                           },
                                           extra: recipe,
                                         );
-                                        if (result == true) {
+                                        if (result == true && fromSearch == true) {
+                                          _refreshRecipes(searchKey); // Refresh if returning from display_recipe_page
+                                        } else if (result == true && fromSearch == false) {
                                           _refreshRecipes(); // Refresh if returning from display_recipe_page
                                         }
                                       },
@@ -421,7 +430,9 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                       },
                                       extra: recipe,
                                     );
-                                    if (result == true) {
+                                    if (result == true && fromSearch == true) {
+                                      _refreshRecipes(searchKey); // Refresh if returning from display_recipe_page
+                                    } else if (result == true && fromSearch == false) {
                                       _refreshRecipes(); // Refresh if returning from display_recipe_page
                                     }
                                   },

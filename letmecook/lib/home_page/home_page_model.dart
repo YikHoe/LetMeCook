@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-class HomePageModel
-    extends FlutterFlowModel<HomePageWidget> {
+class HomePageModel extends FlutterFlowModel<HomePageWidget> {
   TextEditingController searchController = TextEditingController();
+  final FocusNode searchFocusNode = FocusNode();
 
   @override
   void initState(BuildContext context) {}
@@ -16,6 +16,7 @@ class HomePageModel
   @override
   void dispose() {
     searchController.dispose(); // Dispose the controller when done
+    searchFocusNode.dispose();
   }
 
 }
