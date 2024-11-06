@@ -10,8 +10,6 @@ export '/upload_recipe_page/upload_recipe_page_widget.dart'
     show UploadRecipePageWidget;
 export '/pending_approval_recipe_page/pending_approval_recipe_page_widget.dart'
     show PendingApprovalRecipePageWidget;
-export '/pending_approval_verification_page/pending_approval_verification_page_widget.dart'
-    show PendingApprovalVerificationPageWidget;
 export '/modify_recipe_page/modify_recipe_page_widget.dart'
     show ModifyRecipePageWidget;
 export '/display_pending_approval_recipe_page/display_pending_approval_recipe_page_widget.dart'

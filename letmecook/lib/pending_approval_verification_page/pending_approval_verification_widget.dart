@@ -43,7 +43,7 @@ class _PendingApprovalApplicationsWidget extends State<PendingApprovalApplicatio
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Pending Approval Recipes',
+          'Pending Approval Application',
           style: FlutterFlowTheme.of(context).headlineMedium.override(
                 fontFamily: 'Inter Tight',
                 color: Colors.white,
