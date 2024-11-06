@@ -353,12 +353,17 @@ class _ApplyAsVerifiedUserPageWidgetState extends State<ApplyAsVerifiedUserPageW
                                                     color: Colors.black,
                                                   ),
                                                 ),
-                                                Text(
-                                                  data['reason'],
-                                                  style: TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.black,
+                                                Expanded(
+                                                  child: Text(
+                                                    data['reason'],
+                                                    style: TextStyle(
+                                                      fontSize: 14,
+                                                      fontWeight: FontWeight.bold,
+                                                      color: Colors.black,
+                                                    ),
+                                                    textAlign: TextAlign.right,
+                                                    maxLines: null,
+                                                    softWrap: true,
                                                   ),
                                                 ),
                                               ],
