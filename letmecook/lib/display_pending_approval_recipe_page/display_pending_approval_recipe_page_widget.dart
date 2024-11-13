@@ -187,7 +187,6 @@ class _DisplayPendingApprovalRecipePageWidgetState
                             child: Image.memory(
                               snapshot.data!,
                               fit: BoxFit.cover,
-                              height: 250,
                             ),
                           ),
                         ),
